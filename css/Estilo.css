@@ -1,0 +1,30 @@
+/* Fondo de la página */
+body {
+    background-color: #F4FFC3;
+    font-family: Arial, sans-serif;
+}
+
+/* Navbar con verde oscuro */
+.navbar-huerto {
+    background-color: #5D8736 !important;
+}
+
+.navbar-huerto .navbar-brand,
+.navbar-huerto .nav-link {
+    color: #fff !important;
+}
+
+.navbar-huerto .nav-link:hover {
+    color: #A9C46C !important;
+}
+
+/* Botón estilo huerto */
+.btn-huerto {
+    background-color: #809D3C !important;
+    color: #fff !important;
+    border: none;
+}
+
+.btn-huerto:hover {
+    background-color: #5D8736 !important;
+}
