@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HuertoHogar</title>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/Estilo.css" rel="stylesheet">
+
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-sm navbar-huerto">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="Huerto.html">
+                <img src="img/LogoHuerto.png" alt="Logo Huerto" width="40" height="40"
+                    class="d-inline-block align-text-top">
+                Huerto Hogar
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mynavbar">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="Index.html">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Productos.html">Productos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Mi_Cuenta.html">Mi Cuenta</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Carrito_Compra.html">Carrito</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Contacto.html">Contacto</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Quienes_Somos.html">Quienes Somos</a></li>
+                </ul>
+                <form class="d-flex">
+                    <input class="form-control me-2" type="text" placeholder="Buscar">
+                    <button class="btn btn-huerto" type="button">Buscar</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+    <!-- Carrusel imagenes -->
+<div id="carouselHuerto" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-inner">
+        <div class="carousel-item active" data-bs-interval="3000">
+            <img src="img/Frutaindex1.jpg" class="d-block w-100" alt="Huerto 1">
+        </div>
+        <div class="carousel-item" data-bs-interval="3000">
+            <img src="img/Frutaindex2.jpg" class="d-block w-100" alt="Huerto 2">
+        </div>
+        <div class="carousel-item" data-bs-interval="3000">
+            <img src="img/Frutaindex3.jpeg" class="d-block w-100" alt="Huerto 3">
+        </div>
+    </div>
+
+    <!-- Botones opcionales -->
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselHuerto" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselHuerto" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+    </button>
+</div>
+</body>
+
+</html>
