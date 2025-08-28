@@ -8,6 +8,7 @@
     <script src="js/bootstrap.bundle.min.js"></script>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/Estilo.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
 </head>
 
@@ -38,28 +39,144 @@
             </div>
         </div>
     </nav>
-    <!-- Carrusel imagenes -->
-<div id="carouselHuerto" class="carousel slide" data-bs-ride="carousel">
-    <div class="carousel-inner">
-        <div class="carousel-item active" data-bs-interval="3000">
-            <img src="img/Frutaindex1.jpg" class="d-block w-100" alt="Huerto 1">
+    <!-- Carrusel pantalla completa -->
+    <div id="carouselHuerto" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            <div class="carousel-item active" data-bs-interval="3000">
+                <img src="img/Frutaindex1.jpg" class="d-block w-100 vh-100" alt="Huerto 1">
+            </div>
+            <div class="carousel-item" data-bs-interval="3000">
+                <img src="img/Frutaindex2.png" class="d-block w-100 vh-100" alt="Huerto 2">
+            </div>
+            <div class="carousel-item" data-bs-interval="3000">
+                <img src="img/Frutaindex3.jpeg" class="d-block w-100 vh-100" alt="Huerto 3">
+            </div>
         </div>
-        <div class="carousel-item" data-bs-interval="3000">
-            <img src="img/Frutaindex2.jpg" class="d-block w-100" alt="Huerto 2">
+
+        <!-- Botones de navegación -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselHuerto" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselHuerto" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
+    </div>
+    <!-- Sección de productos destacados -->
+
+   <div class="container py-5">
+  <h2 class="text-center mb-4">Ofertas de la Semana</h2>
+  <div class="row g-4 justify-content-center">
+
+    <!-- Producto 1 -->
+    <div class="col-md-4 col-sm-6">
+      <div class="card h-100 text-center shadow-sm p-3">
+        <img src="img/Manzana/Manzana_2.png" class="producto-img mx-auto d-block" alt="Manzanas">
+        <div class="card-body">
+          <h5 class="card-title">Manzanas Rojas</h5>
+          <p class="card-text">
+            <span class="text-danger text-decoration-line-through">$1.200</span>
+            <span class="text-success fw-bold ms-2">$990</span>
+          </p>
+          <button class="btn btn-success btn-sm">
+            <i class="bi bi-cart"></i> Añadir
+          </button>
         </div>
-        <div class="carousel-item" data-bs-interval="3000">
-            <img src="img/Frutaindex3.jpeg" class="d-block w-100" alt="Huerto 3">
-        </div>
+      </div>
     </div>
 
-    <!-- Botones opcionales -->
-    <button class="carousel-control-prev" type="button" data-bs-target="#carouselHuerto" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon"></span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#carouselHuerto" data-bs-slide="next">
-        <span class="carousel-control-next-icon"></span>
-    </button>
+    <!-- Producto 2 -->
+    <div class="col-md-4 col-sm-6">
+      <div class="card h-100 text-center shadow-sm p-3">
+        <img src="img/Miel multifloral/Miel_multi_2.jpg" class="producto-img mx-auto d-block" alt="Miel">
+        <div class="card-body">
+          <h5 class="card-title">Miel Multifloral</h5>
+          <p class="card-text">
+            <span class="text-danger text-decoration-line-through">$8.500</span>
+            <span class="text-success fw-bold ms-2">$6.900</span>
+          </p>
+          <button class="btn btn-success btn-sm">
+            <i class="bi bi-cart"></i> Añadir
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Producto 3 -->
+    <div class="col-md-4 col-sm-6">
+      <div class="card h-100 text-center shadow-sm p-3">
+        <img src="img/Naranja/Naranja_2.png" class="producto-img mx-auto d-block" alt="Naranjas">
+        <div class="card-body">
+          <h5 class="card-title">Naranjas</h5>
+          <p class="card-text">
+            <span class="text-danger text-decoration-line-through">$2.200</span>
+            <span class="text-success fw-bold ms-2">$1.500</span>
+          </p>
+          <button class="btn btn-success btn-sm">
+            <i class="bi bi-cart"></i> Añadir
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Producto 4 -->
+    <div class="col-md-4 col-sm-6">
+      <div class="card h-100 text-center shadow-sm p-3">
+        <img src="img/Zapallo Italiano/Zapallo_italiano_1.png" class="producto-img mx-auto d-block" alt="Zapallo Italiano">
+        <div class="card-body">
+          <h5 class="card-title">Zapallo Italiano</h5>
+          <p class="card-text">
+            <span class="text-danger text-decoration-line-through">$790</span>
+            <span class="text-success fw-bold ms-2">$500</span>
+          </p>
+          <button class="btn btn-success btn-sm">
+            <i class="bi bi-cart"></i> Añadir
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Producto 5 -->
+    <div class="col-md-4 col-sm-6">
+      <div class="card h-100 text-center shadow-sm p-3">
+        <img src="img/frutilla/Frutilla_4.png" class="producto-img mx-auto d-block" alt="Frutillas">
+        <div class="card-body">
+          <h5 class="card-title">Frutillas</h5>
+          <p class="card-text">
+            <span class="text-danger text-decoration-line-through">$3000</span>
+            <span class="text-success fw-bold ms-2">$1990</span>
+          </p>
+          <button class="btn btn-success btn-sm">
+            <i class="bi bi-cart"></i> Añadir
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Producto 6 -->
+    <div class="col-md-4 col-sm-6">
+      <div class="card h-100 text-center shadow-sm p-3">
+        <img src="img/Cereza/Cereza_2.png" class="producto-img mx-auto d-block" alt="Cerezas">
+        <div class="card-body">
+          <h5 class="card-title">Cerezas</h5>
+          <p class="card-text">
+            <span class="text-danger text-decoration-line-through">$4000</span>
+            <span class="text-success fw-bold ms-2">$2.990</span>
+          </p>
+          <button class="btn btn-success btn-sm">
+            <i class="bi bi-cart"></i> Añadir
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
+
+    <!-- Otra sección -->
+    <div class="container py-5 bg-light">
+        <h2 class="text-center">Sobre Nosotros</h2>
+        <p class="text-center">Somos una empresa dedicada a la agricultura urbana...</p>
+    </div>
 </body>
 
 </html>
