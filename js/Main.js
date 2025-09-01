@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
 function guardarCarrito() {
   localStorage.setItem("carrito", JSON.stringify(carrito));
   actualizarContadores();
-  renderCarrito(); // si estoy en la página del carrito
+  renderCarrito(); 
 }
 
 // Renderizar carrito en la tabla
