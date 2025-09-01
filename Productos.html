@@ -54,14 +54,23 @@
     <main class="container py-5">
         <h2 class="text-center mb-4">Todos los Productos</h2>
 
-        <!-- Filtros -->
-        <div class="row mb-4">
-            <div class="col-md-6">
+        <div class="row mb-4 align-items-center">
+            <div class="col-md-6 col-sm-8">
                 <select id="categoria" class="form-select">
                     <option value="todos">Todas las categorías</option>
                     <option value="frutas">Frutas</option>
                     <option value="verduras">Verduras</option>
                     <option value="otros">Otros</option>
+                </select>
+            </div>
+
+            <div class="col-md-3 col-sm-4 ms-auto">
+                <select id="orden" class="form-select form-select-sm">
+                    <option value="relevancia">Ordenar</option>
+                    <option value="precio-asc">Precio: Menor</option>
+                    <option value="precio-desc">Precio: Mayor</option>
+                    <option value="nombre-asc">Nombre: A - Z</option>
+                    <option value="nombre-desc">Nombre: Z - A</option>
                 </select>
             </div>
         </div>

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Productos</title>
+    <title>Productos - HuertoHogar</title>
     <script src="js/bootstrap.bundle.min.js"></script>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/Estilo.css" rel="stylesheet">
@@ -12,10 +12,10 @@
 </head>
 
 <body>
+    <!-- Navbar igual al Index -->
     <nav class="navbar navbar-expand-sm navbar-huerto fixed-top">
         <div class="container-fluid">
-            <!-- Logo y texto -->
-            <a class="navbar-brand d-flex align-items-center" href="Huerto.html">
+            <a class="navbar-brand d-flex align-items-center" href="Index.html">
                 <img src="img/LogoHuerto.png" alt="Logo Huerto" width="45" height="45"
                     class="d-inline-block align-text-top me-2">
                 <span class="brand-text">HuertoHogar</span>
@@ -27,7 +27,7 @@
             <div class="collapse navbar-collapse" id="mynavbar">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item"><a class="nav-link" href="Index.html">Inicio</a></li>
-                    <li class="nav-item"><a class="nav-link" href="Productos.html">Productos</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="Productos.html">Productos</a></li>
                     <li class="nav-item"><a class="nav-link" href="Mi_Cuenta.html">Mi Cuenta</a></li>
                     <li class="nav-item"><a class="nav-link" href="Carrito_Compra.html">Carrito</a></li>
                     <li class="nav-item"><a class="nav-link" href="Contacto.html">Contacto</a></li>
@@ -35,31 +35,82 @@
                 </ul>
 
                 <form class="d-flex align-items-center">
-                    <input class="form-control me-2" type="text" placeholder="Buscar">
+                    <input id="buscar-input" class="form-control me-2" type="text" placeholder="Buscar producto...">
                     <button class="btn btn-huerto me-3" type="button">Buscar</button>
-                    <!-- Íconos -->
-                    <a href="Carrito_Compra.html" class="icon-link me-3"><i class="bi bi-cart3"></i></a>
-                    <a href="#" class="icon-link"><i class="bi bi-heart"></i></a>
+                    <a href="Carrito_Compra.html" class="icon-link me-3">
+                        <i class="bi bi-cart3"></i>
+                        <span id="carrito-count" class="badge bg-success">0</span>
+                    </a>
+                    <a href="#" class="icon-link">
+                        <i class="bi bi-heart"></i>
+                        <span id="favoritos-count" class="badge bg-danger">0</span>
+                    </a>
                 </form>
             </div>
         </div>
     </nav>
-    <!--Agregar al carrito-->
-    <div class="container mt-4">
-        <h2>Tu carrito 🛒</h2>
-        <ul id="cart-list" class="list-group"></ul>
-    </div>
+    <!-- Contenido -->
+    <main class="container py-5">
+        <h2 class="text-center mb-4">🛒 Carrito de Compras</h2>
 
-    <script>
-        const cartList = document.getElementById("cart-list");
-        const cart = JSON.parse(localStorage.getItem("cart")) || [];
-        cart.forEach(item => {
-            const li = document.createElement("li");
-            li.className = "list-group-item";
-            li.textContent = item.name;
-            cartList.appendChild(li);
-        });
-    </script>
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+                <thead class="table-success text-center">
+                    <tr>
+                        <th>Producto</th>
+                        <th>Imagen</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th>Subtotal</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="carrito-tabla">
+                    <!-- Aquí se insertan productos dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="text-end mt-3">
+            <h4>Total: <span id="carrito-total">$0</span></h4>
+            <button class="btn btn-success mt-3" id="btn-pagar">Pagar</button>
+        </div>
+
+        <!-- Formulario de pago (oculto hasta que se aprieta pagar) -->
+        <div id="form-pago" class="mt-4" style="display:none;">
+            <h3>Finalizar Compra</h3>
+            <form id="checkout-form">
+                <div class="mb-3">
+                    <label for="entrega" class="form-label">Método de entrega:</label>
+                    <select id="entrega" class="form-select" required>
+                        <option value="">Seleccione...</option>
+                        <option value="domicilio">Entrega a domicilio</option>
+                        <option value="local">Retiro en local</option>
+                    </select>
+                </div>
+
+                <div id="direccion-box" class="mb-3" style="display:none;">
+                    <label for="direccion" class="form-label">Dirección:</label>
+                    <input type="text" id="direccion" class="form-control">
+                </div>
+
+                <div class="mb-3">
+                    <label for="pago" class="form-label">Método de pago:</label>
+                    <select id="pago" class="form-select" required>
+                        <option value="">Seleccione...</option>
+                        <option value="tarjeta">Tarjeta de crédito/débito</option>
+                        <option value="transferencia">Transferencia bancaria</option>
+                        <option value="efectivo">Efectivo</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Confirmar Pedido</button>
+            </form>
+        </div>
+    </main>
+
+    <script src="js/main.js"></script>
+    <script src="js/productos.js"></script>
 </body>
 
 </html>

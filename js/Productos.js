@@ -1,4 +1,3 @@
-// Catálogo de productos
 const CATALOGO = [
     // FRUTAS
     { id: "1", name: "Manzanas Rojas", precio: 990, categoria: "frutas", img: "img/Manzana/Manzana_1.png", desc: "Manzanas frescas, crocantes y dulces." },
@@ -21,28 +20,34 @@ const CATALOGO = [
     { id: "18", name: "Uvas", precio: 2980, categoria: "frutas", img: "img/uva/Uva_4.png", desc: "Uvas frescas y jugosas, excelentes para comer al natural o en postres." },
 
     // VERDURAS
-   { id: "19", name: "Cebolla", precio: 700, categoria: "verduras", img: "img/cebolla/Cebolla_2.png", desc: "Cebolla fresca, ideal para todo tipo de platos." },
-{ id: "20", name: "Espinaca", precio: 1200, categoria: "verduras", img: "img/Espinaca/Espinaca_1.jpg", desc: "Hojas verdes tiernas, ricas en hierro y vitaminas." },
-{ id: "21", name: "Calabaza", precio: 1600, categoria: "verduras", img: "img/calabaza/Calabaza-1.png", desc: "Pulpa dulce y cremosa, perfecta para sopas y cremas." },
-{ id: "22", name: "Palta Hass", precio: 1600, categoria: "verduras", img: "img/palta/PaltaHass_4.png", desc: "Textura cremosa y sabor suave, ideal para ensaladas y tostadas." },
-{ id: "23", name: "Papas", precio: 1200, categoria: "verduras", img: "img/papa/Papa_1.png", desc: "Versátiles y rendidoras, perfectas para puré, fritas o al horno." },
-{ id: "24", name: "Tomates", precio: 1300, categoria: "verduras", img: "img/tomate/Tomate_1.png", desc: "Jugosos y sabrosos, dan color y frescura a tus comidas." },
-{ id: "25", name: "Pepino", precio: 900, categoria: "verduras", img: "img/pepino/Pepino_1.png", desc: "Crujiente y refrescante, ideal para ensaladas y aguas saborizadas." },
-{ id: "26", name: "Pimiento (Pimentón)", precio: 1400, categoria: "verduras", img: "img/Pimiento/Pimenton_1.png", desc: "Dulce y aromático, aporta color y sabor a salteados y ensaladas." },
-{ id: "27", name: "Tomates Cherry", precio: 1600, categoria: "verduras", img: "img/tomateCherry/Tomate_cherry_1.png", desc: "Pequeños y dulces, perfectos para snack o ensaladas." },
-{ id: "28", name: "Zanahoria", precio: 900, categoria: "verduras", img: "img/Zanahoria/Zanahoria_1.png", desc: "Crujiente y naturalmente dulce, rica en betacarotenos." },
-{ id: "29", name: "Zapallo Camote", precio: 1700, categoria: "verduras", img: "img/Zapallo camote/Zapallo_1.png", desc: "Sabor dulce y textura suave, ideal para cremas y hornos." },
-{ id: "30", name: "Zapallo Italiano", precio: 1200, categoria: "verduras", img: "img/Zapallo Italiano/Zapallo_italiano_1.png", desc: "Suave y versátil, perfecto para salteados, rellenos y pastas." },
-     // OTROS
-    { id: "21", name: "Miel Multifloral", precio: 6900, categoria: "otros", img: "img/Miel multifloral/Miel_multi_2.jpg", desc: "Miel natural 100% pura." },
-    { id: "22", name: "Leche Entera", precio: 1500, categoria: "otros", img: "img/Leche/Leche_1.png", desc: "Leche entera fresca, rica en calcio." },
-    { id: "23", name: "Arvejas", precio: 2200, categoria: "otros", img: "img/arveja/Arveja_1.jpg", desc: "Arvejas verdes, tiernas y llenas de proteínas." },
-    { id: "24", name: "Garbanzo", precio: 2300, categoria: "otros", img: "img/garbanzo/Garbanzo_1.jpg", desc: "Garbanzo ideal para guisos, ensaladas y hummus." },
-    { id: "25", name: "Habas", precio: 2000, categoria: "otros", img: "img/Haba/Haba_1.png", desc: "Habas frescas, tradicionales en la cocina chilena." },
-    { id: "26", name: "Lentejas", precio: 2100, categoria: "otros", img: "img/lenteja/Lenteja_1.jpg", desc: "Lentejas llenas de hierro y fibra, perfectas para guisos." },
-    { id: "27", name: "Avena", precio: 2500, categoria: "otros", img: "img/avena/Avena_1.jpg", desc: "Avena natural, ideal para desayunos saludables." },
-    { id: "28", name: "Linaza", precio: 2800, categoria: "otros", img: "img/linaza/Linaza_1.jpg", desc: "Semillas de linaza, ricas en omega-3 y fibra." },
-    { id: "29", name: "Arroz", precio: 1900, categoria: "otros", img: "img/Arroz/Arroz-1.png", desc: "Arroz blanco de granos largos, versátil en la cocina." },
+    { id: "19", name: "Cebolla", precio: 700, categoria: "verduras", img: "img/cebolla/Cebolla_2.png", desc: "Cebolla fresca, ideal para todo tipo de platos." },
+    { id: "20", name: "Espinaca", precio: 1200, categoria: "verduras", img: "img/Espinaca/Espinaca_1.jpg", desc: "Hojas verdes tiernas, ricas en hierro y vitaminas." },
+    { id: "21", name: "Calabaza", precio: 1600, categoria: "verduras", img: "img/calabaza/Calabaza-1.png", desc: "Pulpa dulce y cremosa, perfecta para sopas y cremas." },
+    { id: "22", name: "Palta Hass", precio: 1600, categoria: "verduras", img: "img/palta/PaltaHass_4.png", desc: "Textura cremosa y sabor suave, ideal para ensaladas y tostadas." },
+    { id: "23", name: "Papas", precio: 1200, categoria: "verduras", img: "img/papa/papa_3.png", desc: "Versátiles y rendidoras, perfectas para puré, fritas o al horno." },
+    { id: "24", name: "Tomates", precio: 1300, categoria: "verduras", img: "img/tomate/Tomate_1.png", desc: "Jugosos y sabrosos, dan color y frescura a tus comidas." },
+    { id: "25", name: "Pepino", precio: 900, categoria: "verduras", img: "img/pepino/Pepino_1.png", desc: "Crujiente y refrescante, ideal para ensaladas y aguas saborizadas." },
+    { id: "26", name: "Pimiento", precio: 1400, categoria: "verduras", img: "img/Pimiento/Pimenton_1.png", desc: "Dulce y aromático, aporta color y sabor a salteados y ensaladas." },
+    { id: "27", name: "Tomates Cherry", precio: 1600, categoria: "verduras", img: "img/tomateCherry/tomatecherry_1.png", desc: "Pequeños y dulces, perfectos para snack o ensaladas." },
+    { id: "28", name: "Zanahoria", precio: 900, categoria: "verduras", img: "img/Zanahoria/Zanahoria_1.png", desc: "Crujiente y naturalmente dulce, rica en betacarotenos." },
+    { id: "29", name: "Zapallo Camote", precio: 1700, categoria: "verduras", img: "img/Zapallo camote/Zapallo_1.png", desc: "Sabor dulce y textura suave, ideal para cremas y hornos." },
+    { id: "30", name: "Zapallo Italiano", precio: 1200, categoria: "verduras", img: "img/Zapallo Italiano/Zapallo_italiano_1.png", desc: "Suave y versátil, perfecto para salteados, rellenos y pastas." },
+    { id: "31", name: "Brócoli", precio: 1690, categoria: "verduras", img: "img/brocoli/Brocoli_1.png", desc: "Brócoli fresco y lleno de nutrientes, ideal para ensaladas, sopas y al vapor." },
+
+    // OTROS
+    { id: "32", name: "Miel Multifloral", precio: 6900, categoria: "otros", img: "img/Miel multifloral/Miel_multi_2.jpg", desc: "Miel natural 100% pura." },
+    { id: "33", name: "Leche Entera", precio: 1500, categoria: "otros", img: "img/Leche/Leche_3.png", desc: "Leche entera fresca, rica en calcio." },
+    { id: "34", name: "Arvejas", precio: 2200, categoria: "otros", img: "img/arveja/Arveja_1.jpg", desc: "Arvejas verdes, tiernas y llenas de proteínas." },
+    { id: "35", name: "Garbanzo", precio: 2300, categoria: "otros", img: "img/garbanzo/Garbanzo_3.png", desc: "Garbanzo ideal para guisos, ensaladas y hummus." },
+    { id: "36", name: "Habas", precio: 2000, categoria: "otros", img: "img/Haba/Habas_3.png", desc: "Habas frescas, tradicionales en la cocina chilena." },
+    { id: "37", name: "Lentejas", precio: 2100, categoria: "otros", img: "img/lenteja/lentejas_3.png", desc: "Lentejas llenas de hierro y fibra, perfectas para guisos." },
+    { id: "38", name: "Avena", precio: 2500, categoria: "otros", img: "img/avena/Avena_2.png", desc: "Avena natural, ideal para desayunos saludables." },
+    { id: "39", name: "Linaza", precio: 2800, categoria: "otros", img: "img/linaza/Linaza_1.png", desc: "Semillas de linaza, ricas en omega-3 y fibra." },
+    { id: "40", name: "Arroz", precio: 1900, categoria: "otros", img: "img/Arroz/Arroz_1.png", desc: "Arroz blanco de granos largos, versátil en la cocina." },
+    { id: "41", name: "Mermelada de Mora", precio: 2500, categoria: "otros", img: "img/Mermeladas/Mermelada_mora_1.png", desc: "Mermelada casera de mora, preparada de forma artesanal con fruta natural y sin preservantes." },
+    { id: "42", name: "Mermelada de Frutilla", precio: 2500, categoria: "otros", img: "img/Mermeladas/Mermelada_frutilla_1.png", desc: "Tradicional mermelada de frutilla casera, endulzada en su punto justo y 100% natural." },
+    { id: "43", name: "Mermelada de Durazno", precio: 2500, categoria: "otros", img: "img/Mermeladas/Mermelada_durazno_!.png", desc: "Deliciosa mermelada casera de durazno, hecha con fruta fresca de la temporada." },
+    { id: "44", name: "Manjar", precio: 3990, categoria: "otros", img: "img/manjar/Manjar_1.png", desc: "Manjar casero cremoso y suave, elaborado lentamente con leche fresca y azúcar." },
 ];
 // Filtros, render y lógica
 const lista = document.getElementById("productos-lista");
