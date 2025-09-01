@@ -60,6 +60,8 @@
                     <option value="todos">Todas las categorías</option>
                     <option value="frutas">Frutas</option>
                     <option value="verduras">Verduras</option>
+                    <option value="Legumbres-Cereales">Legumbres-Cereales</option>
+                    <option value="Lacteos">Lacteos</option>
                     <option value="otros">Otros</option>
                 </select>
             </div>
@@ -84,7 +86,17 @@
             </ul>
         </nav>
     </main>
-
+ <script>
+        // Navbar transparente al hacer scroll
+        window.addEventListener("scroll", function () {
+          const navbar = document.querySelector(".navbar-huerto");
+          if (window.scrollY > 50) {
+            navbar.classList.add("transparent");
+          } else {
+            navbar.classList.remove("transparent");
+          }
+        });
+      </script>
     <script src="js/main.js"></script>
     <script src="js/productos.js"></script>
 
