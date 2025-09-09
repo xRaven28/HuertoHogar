@@ -1,12 +1,9 @@
-// ===============================
+
 // Variables globales
-// ===============================
 let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 let favoritos = JSON.parse(localStorage.getItem("favoritos")) || [];
 
-// ===============================
 // Toast de notificaciones
-// ===============================
 function mostrarToast(msg, color = "#28a745") {
   let toast = document.getElementById("toast");
   if (!toast) {
@@ -21,9 +18,7 @@ function mostrarToast(msg, color = "#28a745") {
   setTimeout(() => (toast.style.display = "none"), 3000);
 }
 
-// ===============================
 // Actualizar contadores
-// ===============================
 function actualizarContadores() {
   const c = document.getElementById("carrito-count");
   const f = document.getElementById("favoritos-count");
@@ -31,18 +26,15 @@ function actualizarContadores() {
   if (f) f.textContent = favoritos.length;
 }
 
-// ===============================
 // Guardar carrito en localStorage
-// ===============================
 function guardarCarrito() {
   localStorage.setItem("carrito", JSON.stringify(carrito));
   actualizarContadores();
   renderCarrito();
 }
 
-// ===============================
+
 // Render carrito
-// ===============================
 function renderCarrito() {
   const tabla = document.getElementById("carrito-tabla");
   if (!tabla) return;
@@ -98,9 +90,7 @@ function renderCarrito() {
   );
 }
 
-// ===============================
 // Render favoritos
-// ===============================
 function renderFavoritos() {
   const cont = document.getElementById("favoritos-lista");
   if (!cont) return;
@@ -145,9 +135,8 @@ function renderFavoritos() {
   );
 }
 
-// ===============================
-// Listener de clicks (carrito y favoritos)
-// ===============================
+
+//carrito y favoritos
 document.addEventListener("click", (e) => {
   // Añadir al carrito
   if (e.target.closest(".btn-cart") || e.target.closest(".add-cart")) {
@@ -166,27 +155,25 @@ document.addEventListener("click", (e) => {
     guardarCarrito();
     mostrarToast(`${name} añadido al carrito 🛒`);
   }
-// Añadir a favoritos
-if (e.target.closest(".btn-fav")) {
-  const btn = e.target.closest(".btn-fav");
-  const id = btn.dataset.id;
-  const name = btn.dataset.name;
-  const img = btn.dataset.img;
+  // Añadir a favoritos
+  if (e.target.closest(".btn-fav")) {
+    const btn = e.target.closest(".btn-fav");
+    const id = btn.dataset.id;
+    const name = btn.dataset.name;
+    const img = btn.dataset.img;
 
-  if (!favoritos.some((item) => item.id === id)) {
-    favoritos.push({ id, name, img });
-    localStorage.setItem("favoritos", JSON.stringify(favoritos));
-    actualizarContadores();
-    mostrarToast(`${name} añadido a favoritos ❤️`);
-  } else {
-    mostrarToast(`${name} ya está en favoritos`, "#ffc107");
+    if (!favoritos.some((item) => item.id === id)) {
+      favoritos.push({ id, name, img });
+      localStorage.setItem("favoritos", JSON.stringify(favoritos));
+      actualizarContadores();
+      mostrarToast(`${name} añadido a favoritos ❤️`);
+    } else {
+      mostrarToast(`${name} ya está en favoritos`, "#ffc107");
+    }
   }
-}
 });
 
-// ===============================
 // Checkout
-// ===============================
 const btnPagar = document.getElementById("btn-pagar");
 if (btnPagar) {
   btnPagar.addEventListener("click", () => {
@@ -214,9 +201,7 @@ if (checkout) {
   });
 }
 
-// ===============================
-// Consejos del día (rotativos)
-// ===============================
+// Consejos del día
 document.addEventListener("DOMContentLoaded", () => {
   const consejos = [
     { titulo: "Come 5 frutas y verduras al día", texto: "Te aportan vitaminas, minerales y fibra para una vida más saludable." },
@@ -239,9 +224,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// ===============================
 // Ofertas de la semana
-// ===============================
 function renderOfertas() {
   const idsOfertas = ["1", "2", "3", "4", "44", "76"];
   const ofertas = CATALOGO.filter((p) => idsOfertas.includes(p.id));
@@ -289,3 +272,4 @@ document.addEventListener("DOMContentLoaded", () => {
   renderFavoritos();
   renderOfertas();
 });
+

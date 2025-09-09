@@ -7,18 +7,18 @@ body {
 
 /* Navbar base */
 .navbar-huerto {
-  background: rgb(28, 94, 24);
+  background: #3A4137;
   transition: background 0.3s ease;
   padding: 10px 20px;
 }
 
 /* Navbar al hacer scroll */
 .navbar-huerto.transparent {
-  background: rgba(35, 118, 35, 0.6); 
+  background: rgba(58, 65, 55, 0.7);
   backdrop-filter: blur(5px);
 }
 
-/* Marca (logo + texto) */
+/* Marca */
 .brand-text {
     font-size: 1.3rem;
     font-weight: bold;

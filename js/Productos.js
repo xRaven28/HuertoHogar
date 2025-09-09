@@ -160,9 +160,10 @@ function renderProductos() {
               <button class="btn btn-success btn-sm btn-cart" data-id="${p.id}" data-name="${p.name}" data-precio="${p.precio}" data-img="${p.img}">
                 <i class="bi bi-cart"></i>
               </button>
-              <button class="btn btn-outline-danger btn-sm btn-fav" data-id="${p.id}" data-name="${p.name}">
-                <i class="bi bi-heart"></i>
-              </button>
+              <button class="btn btn-outline-danger btn-sm btn-fav"
+                data-id="${p.id}" data-name="${p.name}" data-precio="${p.precio}" data-img="${p.img}">
+                 <i class="bi bi-heart"></i>
+               </button>
             </div>
           </div>
         </div>
@@ -223,4 +224,9 @@ if (selPage) selPage.addEventListener("change", () => {
     estado.pageSize = Number(selPage.value);
     estado.page = 1;
     renderProductos();
+});
+document.addEventListener("DOMContentLoaded", () => {
+    if (lista) {
+        renderProductos();
+    }
 });

@@ -45,21 +45,30 @@
         </div>
     </nav>
 
+    <main class="container py-5">
+        <h2 class="text-center mb-4">👤 Mi Cuenta</h2>
+
+        <!-- Botón para ingresar al modo administrador -->
+        <div class="text-center mt-4">
+            <a href="Admin.html" class="btn btn-danger btn-lg">
+                <i class="bi bi-shield-lock"></i> Ingresar como Administrador
+            </a>
+        </div>
+    </main>
 
 
-
-    
-     <script>
+    <script>
         // Navbar transparente al hacer scroll
         window.addEventListener("scroll", function () {
-          const navbar = document.querySelector(".navbar-huerto");
-          if (window.scrollY > 50) {
-            navbar.classList.add("transparent");
-          } else {
-            navbar.classList.remove("transparent");
-          }
+            const navbar = document.querySelector(".navbar-huerto");
+            if (window.scrollY > 50) {
+                navbar.classList.add("transparent");
+            } else {
+                navbar.classList.remove("transparent");
+            }
         });
-      </script>
+    </script>
+    <script src="js/main.js"></script>
 </body>
 
 </html>

@@ -33,26 +33,28 @@
           <li class="nav-item"><a class="nav-link" href="Quienes_Somos.html">Quienes Somos</a></li>
         </ul>
         <form class="d-flex align-items-center">
-          <input class="form-control me-2" type="text" placeholder="Buscar" />
-          <a href="Productos.html" class="btn btn-huerto me-3">Buscar</a>
+          <input id="buscar-input" class="form-control me-2" type="text" placeholder="Buscar producto..." />
+          <button id="btn-buscar" class="btn btn-huerto me-3" type="button">Buscar</button>
+
           <a href="Carrito_Compra.html" class="icon-link me-3">
             <i class="bi bi-cart3"></i>
             <span id="carrito-count" class="badge bg-success">0</span>
           </a>
-          <a href="Favoritos.html" class="icon-link">
-            <i class="bi bi-heart"></i>
-            <span id="favoritos-count" class="badge bg-danger">0</span>
-          </a>
+        </form>
+        <a href="Favoritos.html" class="icon-link">
+          <i class="bi bi-heart"></i>
+          <span id="favoritos-count" class="badge bg-danger">0</span>
+        </a>
         </form>
       </div>
     </div>
   </nav>
 
-  <!-- Carrusel pantalla completa -->
+  <!-- Carrusel pantalla Inicio -->
   <div id="carouselHuerto" class="carousel slide" data-bs-ride="carousel">
     <div class="carousel-inner">
       <div class="carousel-item active" data-bs-interval="3000">
-        <img src="img/Frutaindex1.jpg" class="d-block w-100 vh-100" alt="Huerto 1" />
+        <img src="img/Inicio_1.jpg" class="d-block w-100 vh-100" alt="Huerto 1" />
       </div>
       <div class="carousel-item" data-bs-interval="3000">
         <img src="img/Frutaindex2.png" class="d-block w-100 vh-100" alt="Huerto 2" />
@@ -112,8 +114,9 @@
     });
   </script>
   </div>
-  <script src="js/productos.js"></script>
-  <script src="js/main.js"></script>
+  <script src="js/Productos.js"></script>
+  <script src="js/Main.js"></script>
+
 </body>
 
 </html>

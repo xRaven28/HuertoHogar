@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Administrador - HuertoHogar</title>
+  <script src="js/bootstrap.bundle.min.js"></script>
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/Estilo.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar navbar-expand-sm navbar-huerto fixed-top">
+    <div class="container-fluid">
+      <a class="navbar-brand d-flex align-items-center" href="Index.html">
+        <img src="img/LogoHuerto.png" width="45" height="45" class="me-2">
+        <span class="brand-text">HuertoHogar</span>
+      </a>
+    </div>
+  </nav>
+
+  <main class="container py-5">
+    <h2 class="text-center mb-4">⚙️ Panel de Administración</h2>
+
+    <!-- CRUD Productos -->
+    <section class="mb-5">
+      <h4>📦 Gestión de Productos</h4>
+      <button class="btn btn-success mb-3">➕ Agregar Producto</button>
+      <table class="table table-bordered">
+        <thead class="table-success">
+          <tr>
+            <th>Producto</th>
+            <th>Precio</th>
+            <th>Consejo del día</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="admin-productos">
+          <!-- Aquí se cargarán dinámicamente -->
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Despacho -->
+    <section class="mb-5">
+      <h4>🚚 Asociación con compañías de reparto</h4>
+      <select class="form-select w-50">
+        <option>Chilexpress</option>
+        <option>Starken</option>
+        <option>Bluexpress</option>
+        <option>Correos de Chile</option>
+      </select>
+    </section>
+
+    <!-- Reclamos y sugerencias -->
+    <section>
+      <h4>📢 Reclamos, Sugerencias y Felicitaciones</h4>
+      <div id="admin-reclamos" class="border p-3 bg-light">
+        <!-- Aquí se mostrarán los reclamos/sugerencias -->
+        <p>No hay reclamos aún.</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>
