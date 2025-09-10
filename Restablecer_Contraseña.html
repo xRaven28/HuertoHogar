@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HuertoHogar</title>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <link href="css/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/Estilo.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet" />
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-sm navbar-huerto fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <img src="img/LogoHuerto.png" alt="Logo Huerto" width="45" height="45"
+                    class="d-inline-block align-text-top me-2" />
+                <span class="brand-text">HuertoHogar</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mynavbar">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link active" href="index.html">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Productos.html">Productos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Iniciar_sesion.html">Mi Cuenta</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Carrito_Compra.html">Carrito</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Contacto.html">Contacto</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Quienes_Somos.html">Quienes Somos</a></li>
+                </ul>
+                <form class="d-flex align-items-center">
+                    <input class="form-control me-2" type="text" placeholder="Buscar" />
+                    <a href="Productos.html" class="btn btn-huerto me-3">Buscar</a>
+                    <a href="Carrito_Compra.html" class="icon-link me-3">
+                        <i class="bi bi-cart3"></i>
+                        <span id="carrito-count" class="badge bg-success">0</span>
+                    </a>
+                    <a href="#" class="icon-link">
+                        <i class="bi bi-heart"></i>
+                        <span id="favoritos-count" class="badge bg-danger">0</span>
+                    </a>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="card shadow-lg rounded-3">
+                    <div class="card-body p-4">
+                        <h3 class="text-center mb-4">Restablecer Contraseña</h3>
+
+                        <form>
+                            <p class="text-muted mb-3">
+                                Ingresa tu nueva contraseña y confírmala para actualizar el acceso a tu cuenta.
+                            </p>
+
+                            <!-- Nueva contraseña -->
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Nueva contraseña</label>
+                                <input type="password" class="form-control" id="password" placeholder="********"
+                                    required>
+                            </div>
+
+                            <!-- Confirmar contraseña -->
+                            <div class="mb-3">
+                                <label for="confirmarPassword" class="form-label">Confirmar nueva contraseña</label>
+                                <input type="password" class="form-control" id="confirmarPassword"
+                                    placeholder="********" required>
+                            </div>
+
+                            <!-- Botón -->
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-success">Actualizar contraseña</button>
+                            </div>
+                        </form>
+
+                        <!-- Enlace volver -->
+                        <div class="text-center mt-3">
+                            <p><a href="Iniciar_sesion.html">Volver a Iniciar Sesión</a></p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Validación contraseñas iguales -->
+    <script>
+        const form = document.querySelector("form");
+        form.addEventListener("submit", function (event) {
+            const pass = document.getElementById("password").value;
+            const confirm = document.getElementById("confirmarPassword").value;
+
+            if (pass !== confirm) {
+                event.preventDefault();
+                alert("Las contraseñas no coinciden. Intenta nuevamente.");
+            }
+        });
+    </script>
+
+</body>
+
+</html>

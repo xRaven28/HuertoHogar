@@ -37,13 +37,13 @@ body {
 
 /* Botón Buscar */
 .btn-huerto {
-    background-color: #809D3C !important;
+    background-color: #7cca33 !important;
     color: #fff !important;
     border: none;
 }
 
 .btn-huerto:hover {
-    background-color: #5D8736 !important;
+    background-color: #7cca33 !important;
 }
 
 /* Íconos carrito/corazón */

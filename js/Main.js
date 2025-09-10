@@ -1,10 +1,7 @@
-// main.js (versión corregida y robusta)
-
 // --- Datos iniciales normalizados desde localStorage
 let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 let favoritos = JSON.parse(localStorage.getItem("favoritos")) || [];
 
-// normaliza estructura de items (si vienen con nombres distintos)
 carrito = carrito.map(p => ({
   id: String(p.id),
   name: p.name || p.nombre || "",
@@ -21,7 +18,7 @@ favoritos = favoritos.map(p => ({
 }));
 
 // --- Toast
-function mostrarToast(msg, color = "#28a745") {
+function mostrarToast(msg, color = "#51af13ff") {
   let toast = document.getElementById("toast");
   if (!toast) {
     toast = document.createElement("div");
