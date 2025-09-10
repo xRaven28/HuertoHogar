@@ -1,15 +1,42 @@
+// main.js (versión corregida y robusta)
 
-// Variables globales
+// --- Datos iniciales normalizados desde localStorage
 let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 let favoritos = JSON.parse(localStorage.getItem("favoritos")) || [];
 
-// Toast de notificaciones
+// normaliza estructura de items (si vienen con nombres distintos)
+carrito = carrito.map(p => ({
+  id: String(p.id),
+  name: p.name || p.nombre || "",
+  precio: Number(p.precio || p.price || 0),
+  img: p.img || p.image || "",
+  cantidad: Number(p.cantidad || 1),
+}));
+
+favoritos = favoritos.map(p => ({
+  id: String(p.id),
+  name: p.name || p.nombre || "",
+  img: p.img || p.image || "",
+  precio: Number(p.precio || 0),
+}));
+
+// --- Toast
 function mostrarToast(msg, color = "#28a745") {
   let toast = document.getElementById("toast");
   if (!toast) {
     toast = document.createElement("div");
     toast.id = "toast";
     toast.className = "toast-msg";
+    Object.assign(toast.style, {
+      position: "fixed",
+      right: "20px",
+      bottom: "20px",
+      padding: "10px 14px",
+      borderRadius: "8px",
+      color: "#fff",
+      zIndex: 9999,
+      display: "none"
+    });
     document.body.appendChild(toast);
   }
   toast.textContent = msg;
@@ -18,23 +45,22 @@ function mostrarToast(msg, color = "#28a745") {
   setTimeout(() => (toast.style.display = "none"), 3000);
 }
 
-// Actualizar contadores
+// --- Contadores
 function actualizarContadores() {
   const c = document.getElementById("carrito-count");
   const f = document.getElementById("favoritos-count");
-  if (c) c.textContent = carrito.reduce((acc, p) => acc + (p.cantidad || 1), 0);
+  if (c) c.textContent = carrito.reduce((acc, p) => acc + (Number(p.cantidad) || 1), 0);
   if (f) f.textContent = favoritos.length;
 }
 
-// Guardar carrito en localStorage
+// --- Guardar
 function guardarCarrito() {
   localStorage.setItem("carrito", JSON.stringify(carrito));
   actualizarContadores();
   renderCarrito();
 }
 
-
-// Render carrito
+// --- Render carrito
 function renderCarrito() {
   const tabla = document.getElementById("carrito-tabla");
   if (!tabla) return;
@@ -43,19 +69,21 @@ function renderCarrito() {
   let total = 0;
 
   carrito.forEach((p, i) => {
-    const subtotal = p.precio * p.cantidad;
+    const cantidad = Number(p.cantidad || 1);
+    const precio = Number(p.precio || 0);
+    const subtotal = precio * cantidad;
     total += subtotal;
 
     const fila = document.createElement("tr");
     fila.innerHTML = `
-      <td>${p.name}</td>
-      <td><img src="${p.img}" width="60"></td>
+      <td>${escapeHtml(p.name)}</td>
+      <td style="width:120px;"><img src="${escapeAttr(p.img)}" alt="${escapeAttr(p.name)}" style="max-width:100px; max-height:60px; object-fit:contain;"></td>
       <td>
         <button class="btn btn-sm btn-outline-secondary menos" data-index="${i}">-</button>
-        <span class="mx-2">${p.cantidad}</span>
+        <span class="mx-2">${cantidad}</span>
         <button class="btn btn-sm btn-outline-secondary mas" data-index="${i}">+</button>
       </td>
-      <td>$${p.precio.toLocaleString("es-CL")}</td>
+      <td>$${precio.toLocaleString("es-CL")}</td>
       <td>$${subtotal.toLocaleString("es-CL")}</td>
       <td><button class="btn btn-danger btn-sm eliminar" data-index="${i}">X</button></td>
     `;
@@ -65,11 +93,12 @@ function renderCarrito() {
   const totalEl = document.getElementById("carrito-total");
   if (totalEl) totalEl.textContent = "$" + total.toLocaleString("es-CL");
 
-  // Botones cantidad y eliminar
+  // listeners (delegados en tabla)
   tabla.querySelectorAll(".menos").forEach((b) =>
     b.addEventListener("click", () => {
-      const idx = b.dataset.index;
-      if (carrito[idx].cantidad > 1) carrito[idx].cantidad--;
+      const idx = Number(b.dataset.index);
+      if (!Number.isInteger(idx)) return;
+      if (carrito[idx].cantidad > 1) carrito[idx].cantidad = Number(carrito[idx].cantidad) - 1;
       else carrito.splice(idx, 1);
       guardarCarrito();
     })
@@ -77,27 +106,31 @@ function renderCarrito() {
 
   tabla.querySelectorAll(".mas").forEach((b) =>
     b.addEventListener("click", () => {
-      carrito[b.dataset.index].cantidad++;
+      const idx = Number(b.dataset.index);
+      if (!Number.isInteger(idx)) return;
+      carrito[idx].cantidad = Number(carrito[idx].cantidad || 0) + 1;
       guardarCarrito();
     })
   );
 
   tabla.querySelectorAll(".eliminar").forEach((b) =>
     b.addEventListener("click", () => {
-      carrito.splice(b.dataset.index, 1);
+      const idx = Number(b.dataset.index);
+      if (!Number.isInteger(idx)) return;
+      carrito.splice(idx, 1);
       guardarCarrito();
     })
   );
 }
 
-// Render favoritos
+// --- Render favoritos
 function renderFavoritos() {
   const cont = document.getElementById("favoritos-lista");
   if (!cont) return;
 
   cont.innerHTML = "";
 
-  if (favoritos.length === 0) {
+  if (!Array.isArray(favoritos) || favoritos.length === 0) {
     cont.innerHTML = `<p class="text-center text-muted">No tienes productos en favoritos.</p>`;
     return;
   }
@@ -107,11 +140,11 @@ function renderFavoritos() {
     card.className = "col-md-4";
     card.innerHTML = `
       <div class="card shadow-sm h-100 text-center">
-        <img src="${p.img || 'img/default.png'}" class="card-img-top producto-img" alt="${p.name}">
+        <img src="${escapeAttr(p.img || 'img/default.png')}" class="card-img-top producto-img" alt="${escapeAttr(p.name)}">
         <div class="card-body">
-          <h5 class="card-title">${p.name}</h5>
+          <h5 class="card-title">${escapeHtml(p.name)}</h5>
           <div class="d-flex justify-content-center gap-2">
-            <button class="btn btn-success btn-sm add-cart" data-id="${p.id}" data-name="${p.name}" data-precio="${p.precio || 0}" data-img="${p.img}">
+            <button class="btn btn-success btn-sm add-cart" data-id="${escapeAttr(p.id)}" data-name="${escapeAttr(p.name)}" data-precio="${Number(p.precio || 0)}" data-img="${escapeAttr(p.img)}">
               <i class="bi bi-cart"></i> Añadir al carrito
             </button>
             <button class="btn btn-danger btn-sm eliminar-fav" data-index="${i}">
@@ -123,10 +156,12 @@ function renderFavoritos() {
     cont.appendChild(card);
   });
 
-  // Botones eliminar
+  // eliminar favoritos (delegado en los botones creados)
   cont.querySelectorAll(".eliminar-fav").forEach((b) =>
     b.addEventListener("click", () => {
-      favoritos.splice(b.dataset.index, 1);
+      const idx = Number(b.dataset.index);
+      if (!Number.isInteger(idx)) return;
+      favoritos.splice(idx, 1);
       localStorage.setItem("favoritos", JSON.stringify(favoritos));
       actualizarContadores();
       renderFavoritos();
@@ -135,74 +170,83 @@ function renderFavoritos() {
   );
 }
 
+// --- Helpers para evitar inyección simple (texto/atributo)
+function escapeHtml(str = "") {
+  return String(str)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+function escapeAttr(str = "") {
+  return String(str).replaceAll('"', "&quot;");
+}
 
-//carrito y favoritos
+// --- Delegación global para botones dinámicos
 document.addEventListener("click", (e) => {
-  // Añadir al carrito
-  if (e.target.closest(".btn-cart") || e.target.closest(".add-cart")) {
-    const btn = e.target.closest(".btn-cart, .add-cart");
-    const id = btn.dataset.id;
-    const name = btn.dataset.name;
-    const precio = Number(btn.dataset.precio);
-    const img = btn.dataset.img;
+  const addBtn = e.target.closest(".btn-cart, .add-cart");
+  if (addBtn) {
+    const id = String(addBtn.dataset.id || "");
+    const name = addBtn.dataset.name || "Producto";
+    const precio = Number(addBtn.dataset.precio || 0);
+    const img = addBtn.dataset.img || "";
 
-    const item = carrito.find((p) => p.id === id);
-    if (item) {
-      item.cantidad++;
+    const existing = carrito.find((p) => String(p.id) === id);
+    if (existing) {
+      existing.cantidad = Number(existing.cantidad || 1) + 1;
     } else {
       carrito.push({ id, name, precio, img, cantidad: 1 });
     }
     guardarCarrito();
     mostrarToast(`${name} añadido al carrito 🛒`);
+    return;
   }
-  // Añadir a favoritos
-  if (e.target.closest(".btn-fav")) {
-    const btn = e.target.closest(".btn-fav");
-    const id = btn.dataset.id;
-    const name = btn.dataset.name;
-    const img = btn.dataset.img;
 
-    if (!favoritos.some((item) => item.id === id)) {
-      favoritos.push({ id, name, img });
+  const favBtn = e.target.closest(".btn-fav");
+  if (favBtn) {
+    const id = String(favBtn.dataset.id || "");
+    const name = favBtn.dataset.name || "Producto";
+    const img = favBtn.dataset.img || "";
+    const precio = Number(favBtn.dataset.precio || 0);
+
+    if (!favoritos.some((item) => String(item.id) === id)) {
+      favoritos.push({ id, name, img, precio });
       localStorage.setItem("favoritos", JSON.stringify(favoritos));
       actualizarContadores();
       mostrarToast(`${name} añadido a favoritos ❤️`);
     } else {
       mostrarToast(`${name} ya está en favoritos`, "#ffc107");
     }
+    return;
   }
 });
 
-// Checkout
-const btnPagar = document.getElementById("btn-pagar");
-if (btnPagar) {
-  btnPagar.addEventListener("click", () => {
-    document.getElementById("form-pago").style.display = "block";
+// --- UI que se registra solo una vez
+function setupCheckoutUI() {
+  const btnPagar = document.getElementById("btn-pagar");
+  if (btnPagar) btnPagar.addEventListener("click", () => {
+    const form = document.getElementById("form-pago");
+    if (form) form.style.display = "block";
   });
-}
 
-const entrega = document.getElementById("entrega");
-if (entrega) {
-  entrega.addEventListener("change", () => {
-    document.getElementById("direccion-box").style.display =
-      entrega.value === "domicilio" ? "block" : "none";
+  const entrega = document.getElementById("entrega");
+  if (entrega) entrega.addEventListener("change", () => {
+    const box = document.getElementById("direccion-box");
+    if (box) box.style.display = entrega.value === "domicilio" ? "block" : "none";
   });
-}
 
-const checkout = document.getElementById("checkout-form");
-if (checkout) {
-  checkout.addEventListener("submit", (e) => {
-    e.preventDefault();
+  const checkout = document.getElementById("checkout-form");
+  if (checkout) checkout.addEventListener("submit", (ev) => {
+    ev.preventDefault();
     mostrarToast("✅ ¡Pedido confirmado! Gracias por tu compra.");
     carrito = [];
     guardarCarrito();
-    document.getElementById("form-pago").style.display = "none";
+    const form = document.getElementById("form-pago");
+    if (form) form.style.display = "none";
     renderCarrito();
   });
 }
 
-// Consejos del día
-document.addEventListener("DOMContentLoaded", () => {
+function startConsejos() {
   const consejos = [
     { titulo: "Come 5 frutas y verduras al día", texto: "Te aportan vitaminas, minerales y fibra para una vida más saludable." },
     { titulo: "Mantente hidratado", texto: "Bebe al menos 2 litros de agua al día para mantener tu cuerpo funcionando bien." },
@@ -214,7 +258,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let index = 0;
   const tituloEl = document.getElementById("consejo-titulo");
   const textoEl = document.getElementById("consejo-texto");
-
   if (tituloEl && textoEl) {
     setInterval(() => {
       index = (index + 1) % consejos.length;
@@ -222,54 +265,50 @@ document.addEventListener("DOMContentLoaded", () => {
       textoEl.textContent = consejos[index].texto;
     }, 5000);
   }
-});
+}
 
-// Ofertas de la semana
 function renderOfertas() {
+  if (typeof CATALOGO === "undefined") return;
   const idsOfertas = ["1", "2", "3", "4", "44", "76"];
-  const ofertas = CATALOGO.filter((p) => idsOfertas.includes(p.id));
+  const ofertas = CATALOGO.filter((p) => idsOfertas.includes(String(p.id)));
 
   const contenedor = document.getElementById("ofertas-semana");
   if (!contenedor) return;
 
-  contenedor.innerHTML = ofertas
-    .map(
-      (p) => `
+  contenedor.innerHTML = ofertas.map(p => `
     <div class="col-md-4 col-sm-6">
       <div class="card h-100 text-center shadow-sm p-3">
-        <img src="${p.img}" class="producto-img mx-auto d-block" alt="${p.name}" />
+        <img src="${escapeAttr(p.img)}" class="producto-img mx-auto d-block" alt="${escapeAttr(p.name)}" />
         <div class="card-body">
-          <h5 class="card-title">${p.name}</h5>
+          <h5 class="card-title">${escapeHtml(p.name)}</h5>
           <p class="card-text">
             <span class="text-danger text-decoration-line-through">
-              $${(p.precio * 1.2).toLocaleString("es-CL")}
+              $${Number(p.precio * 1.2).toLocaleString("es-CL")}
             </span>
             <span class="text-success fw-bold ms-2">
-              $${p.precio.toLocaleString("es-CL")}
+              $${Number(p.precio).toLocaleString("es-CL")}
             </span>
           </p>
           <div class="d-flex gap-2 justify-content-center">
-            <button class="btn btn-success btn-sm btn-cart"
-              data-id="${p.id}" data-name="${p.name}" data-precio="${p.precio}" data-img="${p.img}">
+            <button class="btn btn-success btn-sm btn-cart" data-id="${escapeAttr(p.id)}" data-name="${escapeAttr(p.name)}" data-precio="${Number(p.precio)}" data-img="${escapeAttr(p.img)}">
               <i class="bi bi-cart"></i> Añadir
             </button>
-            <button class="btn btn-outline-danger btn-sm btn-fav"
-              data-id="${p.id}" data-name="${p.name}" data-img="${p.img}">
+            <button class="btn btn-outline-danger btn-sm btn-fav" data-id="${escapeAttr(p.id)}" data-name="${escapeAttr(p.name)}" data-precio="${Number(p.precio)}" data-img="${escapeAttr(p.img)}">
               <i class="bi bi-heart"></i> Favorito
             </button>
           </div>
         </div>
       </div>
     </div>
-  `
-    )
-    .join("");
+  `).join("");
 }
 
+// --- Inicialización en DOMContentLoaded (solo una vez)
 document.addEventListener("DOMContentLoaded", () => {
   actualizarContadores();
   renderCarrito();
   renderFavoritos();
   renderOfertas();
+  setupCheckoutUI();
+  startConsejos();
 });
-
