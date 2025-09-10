@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HuertoHogar</title>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <link href="css/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/Estilo.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet" />
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-sm navbar-huerto fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <img src="img/LogoHuerto.png" alt="Logo Huerto" width="45" height="45"
+                    class="d-inline-block align-text-top me-2" />
+                <span class="brand-text">HuertoHogar</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mynavbar">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link active" href="index.html">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Productos.html">Productos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Mi_Cuenta.html">Mi Cuenta</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Carrito_Compra.html">Carrito</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Contacto.html">Contacto</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Quienes_Somos.html">Quienes Somos</a></li>
+                </ul>
+                <form class="d-flex align-items-center">
+                    <input id="buscar-input" class="form-control me-2" type="text" placeholder="Buscar producto..." />
+                    <button id="btn-buscar" class="btn btn-huerto me-3" type="button">Buscar</button>
+
+                    <a href="Carrito_Compra.html" class="icon-link me-3">
+                        <i class="bi bi-cart3"></i>
+                        <span id="carrito-count" class="badge bg-success">0</span>
+                    </a>
+                </form>
+                <a href="Favoritos.html" class="icon-link">
+                    <i class="bi bi-heart"></i>
+                    <span id="favoritos-count" class="badge bg-danger">0</span>
+                </a>
+                </form>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-lg rounded-3">
+                    <div class="card-body p-4">
+                        <h3 class="text-center mb-4">Crear Cuenta</h3>
+
+                        <form id="formCrearCuenta">
+                            <!-- Nombre -->
+                            <div class="mb-3">
+                                <label for="nombre" class="form-label">Nombre</label>
+                                <input type="text" class="form-control" id="nombre" placeholder="Ingresa tu nombre"
+                                    required>
+                            </div>
+
+                            <!-- Apellido -->
+                            <div class="mb-3">
+                                <label for="apellido" class="form-label">Apellido</label>
+                                <input type="text" class="form-control" id="apellido" placeholder="Ingresa tu apellido"
+                                    required>
+                            </div>
+
+                            <!-- RUN -->
+                            <div class="mb-3">
+                                <label for="run" class="form-label">RUN</label>
+                                <input type="text" class="form-control" id="run" placeholder="Ej: 12.345.678-9"
+                                    required>
+
+                            </div>
+
+                            <!-- Correo -->
+                            <div class="mb-3">
+                                <label for="correo" class="form-label">Correo</label>
+                                <input type="email" class="form-control" id="correo" placeholder="ejemplo@correo.com"
+                                    required>
+                            </div>
+
+                            <!-- Teléfono -->
+                            <div class="mb-3">
+                                <label for="telefono" class="form-label">Teléfono</label>
+                                <input type="tel" class="form-control" id="telefono" placeholder="+56 9 1234 5678"
+                                    required>
+                            </div>
+
+                            <!-- Dirección -->
+                            <div class="mb-3">
+                                <label for="direccion" class="form-label">Dirección</label>
+                                <input type="text" class="form-control" id="direccion"
+                                    placeholder="Calle, número, ciudad" required>
+                            </div>
+
+                            <!-- Contraseña -->
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Contraseña</label>
+                                <input type="password" class="form-control" id="password" placeholder="********"
+                                    required>
+                            </div>
+
+                            <!-- Confirmar Contraseña -->
+                            <div class="mb-3">
+                                <label for="confirmarPassword" class="form-label">Confirmar Contraseña</label>
+                                <input type="password" class="form-control" id="confirmarPassword"
+                                    placeholder="********" required>
+                            </div>
+
+                            <!-- Términos y condiciones -->
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="terminos">
+                                <label class="form-check-label" for="terminos">
+                                    Acepto los <a href="Terminos_condiciones.html">términos y condiciones</a>
+                                </label>
+                            </div>
+
+                            <!-- Botón -->
+                            <div class="d-grid">
+                                <button type="submit" id="btnCrearCuenta" class="btn btn-success" disabled>Crear
+                                    cuenta</button>
+                            </div>
+                        </form>
+
+                        <!-- Enlace a iniciar sesión -->
+                        <div class="text-center mt-3">
+                            <p>¿Ya tienes una cuenta? <a href="Iniciar_sesion.html">Inicia sesión</a></p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script para habilitar el botón solo si se aceptan términos -->
+    <script>
+        const checkbox = document.getElementById('terminos');
+        const boton = document.getElementById('btnCrearCuenta');
+
+        checkbox.addEventListener('change', function () {
+            boton.disabled = !this.checked;
+        });
+    </script>
+
+    <script src="js/validaciones_cuenta.js"></script>
+</body>
+
+</html>

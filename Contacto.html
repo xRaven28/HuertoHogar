@@ -44,6 +44,59 @@
             </div>
         </div>
     </nav>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-lg rounded-3">
+                    <div class="card-body p-4">
+                        <h3 class="text-center mb-4">Contáctanos</h3>
+
+                        <form id="formContacto">
+                            <!-- Nombre -->
+                            <div class="mb-3">
+                                <label for="contactoNombre" class="form-label">Nombre</label>
+                                <input type="text" class="form-control" id="contactoNombre"
+                                    placeholder="Ingresa tu nombre" required>
+                            </div>
+
+                            <!-- Correo -->
+                            <div class="mb-3">
+                                <label for="contactoCorreo" class="form-label">Correo</label>
+                                <input type="email" class="form-control" id="contactoCorreo"
+                                    placeholder="ejemplo@correo.com" required>
+                            </div>
+
+                            <!-- Teléfono (opcional) -->
+                            <div class="mb-3">
+                                <label for="contactoTelefono" class="form-label">Teléfono (opcional)</label>
+                                <input type="tel" class="form-control" id="contactoTelefono"
+                                    placeholder="+56 9 1234 5678">
+                            </div>
+
+                            <!-- Mensaje -->
+                            <div class="mb-3">
+                                <label for="contactoMensaje" class="form-label">Mensaje</label>
+                                <textarea class="form-control" id="contactoMensaje" rows="4"
+                                    placeholder="Escribe tu mensaje aquí..." required></textarea>
+                            </div>
+
+                            <!-- Botón -->
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-success">Enviar mensaje</button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <script src="js/validaciones_contacto.js"></script>
+
 </body>
 
 </html>
