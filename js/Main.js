@@ -1,7 +1,9 @@
-// --- Datos iniciales normalizados desde localStorage
+// ===============================
+// Datos iniciales desde localStorage
 let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 let favoritos = JSON.parse(localStorage.getItem("favoritos")) || [];
 
+// Normalización
 carrito = carrito.map(p => ({
   id: String(p.id),
   name: p.name || p.nombre || "",
@@ -17,7 +19,19 @@ favoritos = favoritos.map(p => ({
   precio: Number(p.precio || 0),
 }));
 
-// --- Toast
+
+// Helpers de seguridad
+function escapeHtml(str = "") {
+  return String(str).replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+function escapeAttr(str = "") {
+  return String(str).replaceAll('"', "&quot;");
+}
+
+
+// Toast
 function mostrarToast(msg, color = "#51af13ff") {
   let toast = document.getElementById("toast");
   if (!toast) {
@@ -42,7 +56,8 @@ function mostrarToast(msg, color = "#51af13ff") {
   setTimeout(() => (toast.style.display = "none"), 3000);
 }
 
-// --- Contadores
+
+// Contadores
 function actualizarContadores() {
   const c = document.getElementById("carrito-count");
   const f = document.getElementById("favoritos-count");
@@ -50,14 +65,13 @@ function actualizarContadores() {
   if (f) f.textContent = favoritos.length;
 }
 
-// --- Guardar
+// Carrito
 function guardarCarrito() {
   localStorage.setItem("carrito", JSON.stringify(carrito));
   actualizarContadores();
   renderCarrito();
 }
 
-// --- Render carrito
 function renderCarrito() {
   const tabla = document.getElementById("carrito-tabla");
   if (!tabla) return;
@@ -90,27 +104,25 @@ function renderCarrito() {
   const totalEl = document.getElementById("carrito-total");
   if (totalEl) totalEl.textContent = "$" + total.toLocaleString("es-CL");
 
-  // listeners (delegados en tabla)
-  tabla.querySelectorAll(".menos").forEach((b) =>
+  // Listeners
+  tabla.querySelectorAll(".menos").forEach(b =>
     b.addEventListener("click", () => {
       const idx = Number(b.dataset.index);
       if (!Number.isInteger(idx)) return;
-      if (carrito[idx].cantidad > 1) carrito[idx].cantidad = Number(carrito[idx].cantidad) - 1;
+      if (carrito[idx].cantidad > 1) carrito[idx].cantidad--;
       else carrito.splice(idx, 1);
       guardarCarrito();
     })
   );
-
-  tabla.querySelectorAll(".mas").forEach((b) =>
+  tabla.querySelectorAll(".mas").forEach(b =>
     b.addEventListener("click", () => {
       const idx = Number(b.dataset.index);
       if (!Number.isInteger(idx)) return;
-      carrito[idx].cantidad = Number(carrito[idx].cantidad || 0) + 1;
+      carrito[idx].cantidad++;
       guardarCarrito();
     })
   );
-
-  tabla.querySelectorAll(".eliminar").forEach((b) =>
+  tabla.querySelectorAll(".eliminar").forEach(b =>
     b.addEventListener("click", () => {
       const idx = Number(b.dataset.index);
       if (!Number.isInteger(idx)) return;
@@ -120,13 +132,13 @@ function renderCarrito() {
   );
 }
 
-// --- Render favoritos
+
+// Favoritos
 function renderFavoritos() {
   const cont = document.getElementById("favoritos-lista");
   if (!cont) return;
 
   cont.innerHTML = "";
-
   if (!Array.isArray(favoritos) || favoritos.length === 0) {
     cont.innerHTML = `<p class="text-center text-muted">No tienes productos en favoritos.</p>`;
     return;
@@ -141,7 +153,7 @@ function renderFavoritos() {
         <div class="card-body">
           <h5 class="card-title">${escapeHtml(p.name)}</h5>
           <div class="d-flex justify-content-center gap-2">
-            <button class="btn btn-success btn-sm add-cart" data-id="${escapeAttr(p.id)}" data-name="${escapeAttr(p.name)}" data-precio="${Number(p.precio || 0)}" data-img="${escapeAttr(p.img)}">
+            <button class="btn btn-success btn-sm add-cart" data-id="${escapeAttr(p.id)}" data-name="${escapeAttr(p.name)}" data-precio="${Number(p.precio)}" data-img="${escapeAttr(p.img)}">
               <i class="bi bi-cart"></i> Añadir al carrito
             </button>
             <button class="btn btn-danger btn-sm eliminar-fav" data-index="${i}">
@@ -153,8 +165,7 @@ function renderFavoritos() {
     cont.appendChild(card);
   });
 
-  // eliminar favoritos (delegado en los botones creados)
-  cont.querySelectorAll(".eliminar-fav").forEach((b) =>
+  cont.querySelectorAll(".eliminar-fav").forEach(b =>
     b.addEventListener("click", () => {
       const idx = Number(b.dataset.index);
       if (!Number.isInteger(idx)) return;
@@ -167,108 +178,11 @@ function renderFavoritos() {
   );
 }
 
-// --- Helpers para evitar inyección simple (texto/atributo)
-function escapeHtml(str = "") {
-  return String(str)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
-}
-function escapeAttr(str = "") {
-  return String(str).replaceAll('"', "&quot;");
-}
-
-// --- Delegación global para botones dinámicos
-document.addEventListener("click", (e) => {
-  const addBtn = e.target.closest(".btn-cart, .add-cart");
-  if (addBtn) {
-    const id = String(addBtn.dataset.id || "");
-    const name = addBtn.dataset.name || "Producto";
-    const precio = Number(addBtn.dataset.precio || 0);
-    const img = addBtn.dataset.img || "";
-
-    const existing = carrito.find((p) => String(p.id) === id);
-    if (existing) {
-      existing.cantidad = Number(existing.cantidad || 1) + 1;
-    } else {
-      carrito.push({ id, name, precio, img, cantidad: 1 });
-    }
-    guardarCarrito();
-    mostrarToast(`${name} añadido al carrito 🛒`);
-    return;
-  }
-
-  const favBtn = e.target.closest(".btn-fav");
-  if (favBtn) {
-    const id = String(favBtn.dataset.id || "");
-    const name = favBtn.dataset.name || "Producto";
-    const img = favBtn.dataset.img || "";
-    const precio = Number(favBtn.dataset.precio || 0);
-
-    if (!favoritos.some((item) => String(item.id) === id)) {
-      favoritos.push({ id, name, img, precio });
-      localStorage.setItem("favoritos", JSON.stringify(favoritos));
-      actualizarContadores();
-      mostrarToast(`${name} añadido a favoritos ❤️`);
-    } else {
-      mostrarToast(`${name} ya está en favoritos`, "#ffc107");
-    }
-    return;
-  }
-});
-
-// --- UI que se registra solo una vez
-function setupCheckoutUI() {
-  const btnPagar = document.getElementById("btn-pagar");
-  if (btnPagar) btnPagar.addEventListener("click", () => {
-    const form = document.getElementById("form-pago");
-    if (form) form.style.display = "block";
-  });
-
-  const entrega = document.getElementById("entrega");
-  if (entrega) entrega.addEventListener("change", () => {
-    const box = document.getElementById("direccion-box");
-    if (box) box.style.display = entrega.value === "domicilio" ? "block" : "none";
-  });
-
-  const checkout = document.getElementById("checkout-form");
-  if (checkout) checkout.addEventListener("submit", (ev) => {
-    ev.preventDefault();
-    mostrarToast("✅ ¡Pedido confirmado! Gracias por tu compra.");
-    carrito = [];
-    guardarCarrito();
-    const form = document.getElementById("form-pago");
-    if (form) form.style.display = "none";
-    renderCarrito();
-  });
-}
-
-function startConsejos() {
-  const consejos = [
-    { titulo: "Come 5 frutas y verduras al día", texto: "Te aportan vitaminas, minerales y fibra para una vida más saludable." },
-    { titulo: "Mantente hidratado", texto: "Bebe al menos 2 litros de agua al día para mantener tu cuerpo funcionando bien." },
-    { titulo: "Haz ejercicio regularmente", texto: "30 minutos de actividad física diaria mejoran tu salud y ánimo." },
-    { titulo: "Prefiere alimentos frescos", texto: "Reduce el consumo de ultraprocesados y elige opciones naturales." },
-    { titulo: "Duerme bien", texto: "Un buen descanso fortalece tu sistema inmune y mejora la concentración." }
-  ];
-
-  let index = 0;
-  const tituloEl = document.getElementById("consejo-titulo");
-  const textoEl = document.getElementById("consejo-texto");
-  if (tituloEl && textoEl) {
-    setInterval(() => {
-      index = (index + 1) % consejos.length;
-      tituloEl.textContent = consejos[index].titulo;
-      textoEl.textContent = consejos[index].texto;
-    }, 5000);
-  }
-}
-
+// Ofertas
 function renderOfertas() {
   if (typeof CATALOGO === "undefined") return;
   const idsOfertas = ["1", "2", "3", "4", "44", "76"];
-  const ofertas = CATALOGO.filter((p) => idsOfertas.includes(String(p.id)));
-
+  const ofertas = CATALOGO.filter(p => idsOfertas.includes(String(p.id)));
   const contenedor = document.getElementById("ofertas-semana");
   if (!contenedor) return;
 
@@ -300,12 +214,177 @@ function renderOfertas() {
   `).join("");
 }
 
-// --- Inicialización en DOMContentLoaded (solo una vez)
+// Consejos diarios
+function startConsejos() {
+  const consejos = [
+    { titulo: "Come 5 frutas y verduras al día", texto: "Te aportan vitaminas, minerales y fibra para una vida más saludable." },
+    { titulo: "Mantente hidratado", texto: "Bebe al menos 2 litros de agua al día para mantener tu cuerpo funcionando bien." },
+    { titulo: "Haz ejercicio regularmente", texto: "30 minutos de actividad física diaria mejoran tu salud y ánimo." },
+    { titulo: "Prefiere alimentos frescos", texto: "Reduce el consumo de ultraprocesados y elige opciones naturales." },
+    { titulo: "Duerme bien", texto: "Un buen descanso fortalece tu sistema inmune y mejora la concentración." }
+  ];
+
+  let index = 0;
+  const tituloEl = document.getElementById("consejo-titulo");
+  const textoEl = document.getElementById("consejo-texto");
+  if (tituloEl && textoEl) {
+    setInterval(() => {
+      index = (index + 1) % consejos.length;
+      tituloEl.textContent = consejos[index].titulo;
+      textoEl.textContent = consejos[index].texto;
+    }, 5000);
+  }
+}
+
+// Checkout UI
+function setupCheckoutUI() {
+  const btnPagar = document.getElementById("btn-pagar");
+  if (btnPagar) btnPagar.addEventListener("click", () => {
+    const form = document.getElementById("form-pago");
+    if (form) form.style.display = "block";
+  });
+
+  const entrega = document.getElementById("entrega");
+  if (entrega) entrega.addEventListener("change", () => {
+    const box = document.getElementById("direccion-box");
+    if (box) box.style.display = entrega.value === "domicilio" ? "block" : "none";
+  });
+
+  const checkout = document.getElementById("checkout-form");
+  if (checkout) checkout.addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    mostrarToast("✅ ¡Pedido confirmado! Gracias por tu compra.");
+    carrito = [];
+    guardarCarrito();
+    const form = document.getElementById("form-pago");
+    if (form) form.style.display = "none";
+    renderCarrito();
+  });
+}
+function filtrarYOrdenarProductos() {
+  if (typeof CATALOGO === "undefined") return;
+  const contenedor = document.getElementById("productos-lista");
+  if (!contenedor) return;
+
+  let productos = [...CATALOGO];
+
+  // Filtrado por categoría
+  const categoria = document.getElementById("categoria")?.value || "todos";
+  if (categoria !== "todos") productos = productos.filter(p => p.categoria === categoria);
+
+  // Orden
+  const orden = document.getElementById("orden")?.value || "relevancia";
+  switch (orden) {
+    case "precio-asc": productos.sort((a, b) => a.precio - b.precio); break;
+    case "precio-desc": productos.sort((a, b) => b.precio - a.precio); break;
+    case "nombre-asc": productos.sort((a, b) => a.name.localeCompare(b.name)); break;
+    case "nombre-desc": productos.sort((a, b) => b.name.localeCompare(a.name)); break;
+  }
+
+  contenedor.innerHTML = productos.map(p => `
+    <div class="col-md-4 col-sm-6">
+      <div class="card h-100 shadow-sm p-3 text-center">
+        <img src="${escapeAttr(p.img)}" class="producto-img mx-auto d-block" alt="${escapeAttr(p.name)}">
+        <div class="card-body">
+          <h5 class="card-title">${escapeHtml(p.name)}</h5>
+          <p class="card-text">$${Number(p.precio).toLocaleString("es-CL")}</p>
+          <div class="d-flex gap-2 justify-content-center">
+            <button class="btn btn-success btn-sm btn-cart" data-id="${escapeAttr(p.id)}" data-name="${escapeAttr(p.name)}" data-precio="${Number(p.precio)}" data-img="${escapeAttr(p.img)}">
+              <i class="bi bi-cart"></i> Añadir
+            </button>
+            <button class="btn btn-outline-danger btn-sm btn-fav" data-id="${escapeAttr(p.id)}" data-name="${escapeAttr(p.name)}" data-precio="${Number(p.precio)}" data-img="${escapeAttr(p.img)}">
+              <i class="bi bi-heart"></i> Favorito
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
+// Escuchas de filtrado y orden
+document.getElementById("categoria")?.addEventListener("change", filtrarYOrdenarProductos);
+document.getElementById("orden")?.addEventListener("change", filtrarYOrdenarProductos);
+
+// Delegación global de botones
+document.addEventListener("click", e => {
+  const addBtn = e.target.closest(".btn-cart, .add-cart");
+  if (addBtn) {
+    const id = String(addBtn.dataset.id || "");
+    const name = addBtn.dataset.name || "Producto";
+    const precio = Number(addBtn.dataset.precio || 0);
+    const img = addBtn.dataset.img || "";
+
+    const existing = carrito.find(p => String(p.id) === id);
+    if (existing) existing.cantidad++;
+    else carrito.push({ id, name, precio, img, cantidad: 1 });
+
+    guardarCarrito();
+    mostrarToast(`${name} añadido al carrito 🛒`);
+    return;
+  }
+
+  const favBtn = e.target.closest(".btn-fav");
+  if (favBtn) {
+    const id = String(favBtn.dataset.id || "");
+    const name = favBtn.dataset.name || "Producto";
+    const img = favBtn.dataset.img || "";
+    const precio = Number(favBtn.dataset.precio || 0);
+
+    if (!favoritos.some(item => String(item.id) === id)) {
+      favoritos.push({ id, name, img, precio });
+      localStorage.setItem("favoritos", JSON.stringify(favoritos));
+      actualizarContadores();
+      mostrarToast(`${name} añadido a favoritos ❤️`);
+    } else {
+      mostrarToast(`${name} ya está en favoritos`, "#ffc107");
+    }
+    return;
+  }
+});
+function renderProductosCliente() {
+  if (typeof CATALOGO === "undefined") return;
+
+  const contenedor = document.getElementById("productos-lista");
+  if (!contenedor) return;
+
+  contenedor.innerHTML = CATALOGO.map(p => `
+    <div class="col-md-4 col-sm-6">
+      <div class="card h-100 shadow-sm p-3 text-center">
+        <img src="${escapeAttr(p.img)}" class="producto-img mx-auto d-block" alt="${escapeAttr(p.name)}">
+        <div class="card-body">
+          <h5 class="card-title">${escapeHtml(p.name)}</h5>
+          <p class="card-text">$${Number(p.precio).toLocaleString("es-CL")}</p>
+          <div class="d-flex gap-2 justify-content-center">
+            <button class="btn btn-success btn-sm btn-cart" 
+              data-id="${escapeAttr(p.id)}" 
+              data-name="${escapeAttr(p.name)}" 
+              data-precio="${Number(p.precio)}" 
+              data-img="${escapeAttr(p.img)}">
+              <i class="bi bi-cart"></i> Añadir
+            </button>
+            <button class="btn btn-outline-danger btn-sm btn-fav" 
+              data-id="${escapeAttr(p.id)}" 
+              data-name="${escapeAttr(p.name)}" 
+              data-precio="${Number(p.precio)}" 
+              data-img="${escapeAttr(p.img)}">
+              <i class="bi bi-heart"></i> Favorito
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
+// Inicialización
 document.addEventListener("DOMContentLoaded", () => {
   actualizarContadores();
   renderCarrito();
   renderFavoritos();
   renderOfertas();
   setupCheckoutUI();
+  filtrarYOrdenarProductos();
   startConsejos();
+  if (typeof renderProductosCliente === "function") renderProductosCliente();
 });

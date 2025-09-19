@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel Administrador - HuertoHogar</title>
+  <!-- Bootstrap -->
   <script src="js/bootstrap.bundle.min.js"></script>
   <link href="css/bootstrap.min.css" rel="stylesheet">
   <link href="css/Estilo.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 </head>
+
 <body>
+  <!-- NAVBAR -->
   <nav class="navbar navbar-expand-sm navbar-huerto fixed-top">
     <div class="container-fluid">
       <a class="navbar-brand d-flex align-items-center" href="Index.html">
@@ -20,49 +24,182 @@
   </nav>
 
   <main class="container py-5">
-    <h2 class="text-center mb-4">⚙️ Panel de Administración</h2>
 
-    <!-- CRUD Productos -->
-    <section class="mb-5">
-      <h4>📦 Gestión de Productos</h4>
-      <button class="btn btn-success mb-3">➕ Agregar Producto</button>
+    <!-- LOGIN -->
+    <section id="login-section">
+      <h2 class="text-center mb-4">Iniciar Sesión Administrador</h2>
+      <div class="card p-4 shadow">
+        <div class="mb-3">
+          <label for="username" class="form-label">Usuario</label>
+          <input type="text" id="username" class="form-control">
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Contraseña</label>
+          <input type="password" id="password" class="form-control">
+        </div>
+        <button class="btn btn-success w-100" onclick="login()">Ingresar</button>
+      </div>
+    </section>
+
+    <!-- PANEL ADMIN HUERTO -->
+    <section id="panel-huerto" class="d-none">
+      <h2 class="text-center mb-4">Panel Administrador del Huerto</h2>
+
+      <!-- CRUD Productos -->
+      <h4>Gestión de Productos</h4>
+      <div class="mb-3 w-50">
+        <input type="text" id="buscar-producto" class="form-control" placeholder="Buscar producto..."
+          onkeyup="filtrarProductos()">
+      </div>
+      <button class="btn btn-success mb-3" onclick="abrirAgregar()">➕ Agregar Producto</button>
+
       <table class="table table-bordered">
         <thead class="table-success">
           <tr>
             <th>Producto</th>
             <th>Precio</th>
-            <th>Consejo del día</th>
+            <th>Descripción</th>
             <th>Estado</th>
             <th>Acciones</th>
           </tr>
         </thead>
-        <tbody id="admin-productos">
-          <!-- Aquí se cargarán dinámicamente -->
-        </tbody>
+        <tbody id="admin-productos"></tbody>
       </table>
-    </section>
 
-    <!-- Despacho -->
-    <section class="mb-5">
-      <h4>🚚 Asociación con compañías de reparto</h4>
+      <!-- Despacho -->
+      <h4 class="mt-4">Asociación con compañías de reparto</h4>
       <select class="form-select w-50">
         <option>Chilexpress</option>
         <option>Starken</option>
         <option>Bluexpress</option>
         <option>Correos de Chile</option>
       </select>
+
+      <!-- Consejo del día -->
+      <h4 class="mt-4">Consejo del día</h4>
+      <textarea class="form-control w-50" rows="3" placeholder="Escribe el consejo..."></textarea>
+      <button class="btn btn-primary mt-2">Guardar Consejo</button>
     </section>
 
-    <!-- Reclamos y sugerencias -->
-    <section>
-      <h4>📢 Reclamos, Sugerencias y Felicitaciones</h4>
+    <!-- PANEL ADMIN CUENTAS -->
+    <section id="panel-cuentas" class="d-none">
+      <h2 class="text-center mb-4">Panel Administrador de Cuentas</h2>
+
+      <!-- Reclamos y sugerencias -->
+      <h4>Reclamos, Sugerencias y Felicitaciones</h4>
       <div id="admin-reclamos" class="border p-3 bg-light">
-        <!-- Aquí se mostrarán los reclamos/sugerencias -->
         <p>No hay reclamos aún.</p>
       </div>
+
+      <!-- Gestión de cuentas -->
+      <h4 class="mt-4">Gestión de Usuarios</h4>
+      <table class="table table-bordered">
+        <thead class="table-info">
+          <tr>
+            <th>Usuario</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="admin-cuentas">
+          <tr>
+            <td>usuario1</td>
+            <td>Activo</td>
+            <td>
+              <button class="btn btn-warning btn-sm">Inhabilitar</button>
+              <button class="btn btn-danger btn-sm">Bloquear</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </section>
   </main>
 
-  <script src="js/admin.js"></script>
+  <!-- MODAL EDITAR PRODUCTO -->
+  <div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Editar Producto</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="editar-id">
+          <div class="mb-3">
+            <label>Nombre</label>
+            <input type="text" id="editar-nombre" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label>Precio</label>
+            <input type="number" id="editar-precio" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label>Descripción</label>
+            <textarea id="editar-descripcion" class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn btn-primary" onclick="guardarEdicion()">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL AGREGAR PRODUCTO -->
+  <div class="modal fade" id="modalAgregar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Agregar Producto</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label>Nombre</label>
+            <input type="text" id="agregar-nombre" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label>Precio</label>
+            <input type="number" id="agregar-precio" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label>Descripción</label>
+            <textarea id="agregar-descripcion" class="form-control" rows="3"></textarea>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="agregar-habilitado" checked>
+            <label class="form-check-label">Habilitado</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn btn-success" onclick="guardarNuevoProducto()">Agregar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script>
+    function login() {
+      const user = document.getElementById("username").value;
+      const pass = document.getElementById("password").value;
+
+      if (user === "huerto" && pass === "1234") {
+        document.getElementById("login-section").classList.add("d-none");
+        document.getElementById("panel-huerto").classList.remove("d-none");
+      } else if (user === "cuentas" && pass === "1234") {
+        document.getElementById("login-section").classList.add("d-none");
+        document.getElementById("panel-cuentas").classList.remove("d-none");
+      } else {
+        alert("Credenciales incorrectas");
+      }
+    }
+  </script>
+<script src="js/admin.js"></script>
+<script src="js/Main.js"></script>
+
 </body>
+
 </html>
