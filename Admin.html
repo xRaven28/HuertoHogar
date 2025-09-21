@@ -89,10 +89,51 @@
       </div>
 
       <!-- Gestión de cuentas -->
-      <h4 class="mt-4">Gestión de Usuarios</h4>
       <div class="mb-3 d-flex gap-2">
-        <button class="btn btn-success" onclick="crearUsuarioAdmin()"> Crear Usuario</button>
+        <!-- Botón que abre el modal -->
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCrearUsuario">
+          ➕ Crear Usuario
+        </button>
+
+        <!-- Botón historial -->
         <button class="btn btn-info" onclick="mostrarHistorial()"> Ver Historial</button>
+      </div>
+
+      <!-- Modal Crear Usuario -->
+      <div class="modal fade" id="modalCrearUsuario" tabindex="-1" aria-labelledby="modalCrearUsuarioLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+              <h5 class="modal-title" id="modalCrearUsuarioLabel">Crear Nuevo Usuario</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+              <form id="formCrearUsuario">
+                <div class="mb-3">
+                  <label for="nuevo-nombre" class="form-label">Nombre</label>
+                  <input type="text" class="form-control" id="nuevo-nombre" required>
+                </div>
+                <div class="mb-3">
+                  <label for="nuevo-rut" class="form-label">RUT</label>
+                  <input type="text" class="form-control" id="nuevo-rut" required>
+                </div>
+                <div class="mb-3">
+                  <label for="nuevo-correo" class="form-label">Correo</label>
+                  <input type="email" class="form-control" id="nuevo-correo" required>
+                </div>
+                <div class="mb-3">
+                  <label for="nuevo-password" class="form-label">Contraseña</label>
+                  <input type="password" class="form-control" id="nuevo-password" required>
+                </div>
+                <button type="submit" class="btn btn-success w-100">Crear Usuario</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-info" onclick="mostrarHistorial()"> Ver Historial</button>
       </div>
 
       <!-- Tabla de usuarios -->
@@ -100,6 +141,7 @@
         <thead class="table-info">
           <tr>
             <th>Usuario</th>
+            <th>RUT</th>
             <th>Rol</th>
             <th>Estado</th>
             <th>Acciones</th>

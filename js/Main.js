@@ -250,6 +250,11 @@ function renderCuentas() {
     tdNombre.textContent = usuario.nombre;
     tr.appendChild(tdNombre);
 
+    // RUT
+    const tdRut = document.createElement("td");
+    tdRut.textContent = usuario.rut || "-";
+    tr.appendChild(tdRut);
+
     // Rol
     const tdRol = document.createElement("td");
     tdRol.textContent = usuario.rol;
@@ -263,21 +268,18 @@ function renderCuentas() {
     // Acciones
     const tdAcciones = document.createElement("td");
 
-    // Cambiar rol
     const btnRol = document.createElement("button");
     btnRol.className = "btn btn-info btn-sm me-1";
     btnRol.textContent = "Cambiar Rol";
     btnRol.onclick = () => cambiarRol(usuario.id);
     tdAcciones.appendChild(btnRol);
 
-    // Habilitar/Inhabilitar
     const btnEstado = document.createElement("button");
     btnEstado.className = "btn btn-warning btn-sm me-1";
     btnEstado.textContent = usuario.estado === "Activo" ? "Inhabilitar" : "Habilitar";
     btnEstado.onclick = () => toggleEstado(usuario.id);
     tdAcciones.appendChild(btnEstado);
 
-    // Bloquear/Desbloquear
     const btnBloqueo = document.createElement("button");
     btnBloqueo.className = "btn btn-danger btn-sm";
     btnBloqueo.textContent = usuario.bloqueado ? "Desbloquear" : "Bloquear";
@@ -288,33 +290,51 @@ function renderCuentas() {
     tbody.appendChild(tr);
   });
 }
+// Abrir modal
+function abrirModalCrearUsuario() {
+  const modal = new bootstrap.Modal(document.getElementById("modalCrearUsuario"));
+  modal.show();
+}
 
-function crearUsuarioAdmin() {
-  const nombre = prompt("Ingrese el nombre del usuario:");
-  if (!nombre) return mostrarToast("Debe ingresar un nombre", "#dc3545");
-  const correo = prompt("Ingrese el correo del usuario:");
-  if (!correo) return mostrarToast("Debe ingresar un correo", "#dc3545");
-  const password = prompt("Ingrese la contraseña:");
-  if (!password) return mostrarToast("Debe ingresar una contraseña", "#dc3545");
+// Guardar usuario desde el formulario
+document.getElementById("formCrearUsuario")?.addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  const nombre = document.getElementById("nuevo-nombre").value.trim();
+  const rut = document.getElementById("nuevo-rut").value.trim();
+  const correo = document.getElementById("nuevo-correo").value.trim();
+  const password = document.getElementById("nuevo-password").value.trim();
+
+  if (!nombre || !rut || !correo || !password) return mostrarToast("Todos los campos son obligatorios", "#dc3545");
 
   const nuevo = {
     id: USUARIOS.length ? Math.max(...USUARIOS.map(u => u.id)) + 1 : 1,
-    nombre, correo, password,
-    rol: "cliente", estado: "Activo", bloqueado: false,
+    nombre,
+    rut,
+    correo,
+    password,
+    rol: "cliente",
+    estado: "Activo",
+    bloqueado: false,
     historial: [`Usuario creado (${new Date().toLocaleString()})`]
   };
+
 
   USUARIOS.push(nuevo);
   guardarUsuarios();
   renderCuentas();
   guardarHistorial(`Se creó el usuario ${nombre} (${correo})`);
   mostrarToast(`Usuario ${nombre} creado ✅`);
-}
+
+
+  this.reset();
+  bootstrap.Modal.getInstance(document.getElementById("modalCrearUsuario")).hide();
+});
 
 function cambiarRol(id) {
   const usuario = USUARIOS.find(u => u.id === id);
   if (!usuario) return;
-  usuario.rol = usuario.rol === "cliente" ? "admin cuentas" : "cliente";
+  usuario.rol = usuario.rol === "cliente" ? "Administrador" : "cliente";
   usuario.historial.push(`Rol cambiado a ${usuario.rol} (${new Date().toLocaleString()})`);
   guardarUsuarios();
   renderCuentas();
