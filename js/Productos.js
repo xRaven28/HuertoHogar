@@ -1,4 +1,4 @@
-const CATALOGO = [
+window.CATALOGO = [
   // FRUTAS
   { id: "1", name: "Manzanas Rojas", precio: 990, categoria: "frutas", img: "img/Manzana/Manzana_1.png", desc: "Manzanas frescas, crocantes y dulces.", habilitado: true },
   { id: "2", name: "Naranjas", precio: 1500, categoria: "frutas", img: "img/Naranja/Naranja_1.png", desc: "Naranjas jugosas llenas de vitamina C.", habilitado: true },
@@ -62,7 +62,7 @@ const CATALOGO = [
   { id: "59", name: "Perejil", precio: 700, categoria: "verduras", img: "img/perejil/Perejil_1.webp", desc: "Perejil fresco, perfecto para salsas, guisos y ensaladas.", habilitado: true },
   { id: "60", name: "Apio", precio: 1100, categoria: "verduras", img: "img/apio.png", desc: "Crujiente y refrescante, ideal para ensaladas y sopas.", habilitado: true },
 
-  //LEGUMBRES & CEREALES 
+  //LEGUMBRES Y CEREALES 
   { id: "61", name: "Arvejas", precio: 2200, categoria: "Legumbres-Cereales", img: "img/arveja/Arveja_1.jpg", desc: "Arvejas verdes, tiernas y llenas de proteína vegetal.", habilitado: true },
   { id: "62", name: "Garbanzos", precio: 2300, categoria: "Legumbres-Cereales", img: "img/garbanzo/Garbanzo_3.png", desc: "Garbanzos ideales para ensaladas, guisos y hummus.", habilitado: true },
   { id: "63", name: "Habas", precio: 2000, categoria: "Legumbres-Cereales", img: "img/haba/Habas_3.png", desc: "Habas frescas y tradicionales en la cocina chilena.", habilitado: true },
@@ -91,19 +91,25 @@ const CATALOGO = [
   { id: "82", name: "Mermelada de Frambuesa", precio: 2800, categoria: "otros", img: "img/mermelada frambuesa/MermeladaFrambuesa_1.webp", desc: "Mermelada de frambuesa fresca, intensa y natural.", habilitado: true },
   { id: "83", name: "Mermelada de Arándano", precio: 2800, categoria: "otros", img: "img/Mermeladas/Mermelada_arandano_1.png", desc: "Mermelada artesanal de arándano, llena de sabor.", habilitado: true },
 ];
-window.CATALOGO_LOCAL = JSON.parse(localStorage.getItem("CATALOGO")) || CATALOGO;
+window.catalogo_local = JSON.parse(localStorage.getItem("catalogo")) || window.CATALOGO;
 
 function guardarCatalogo() {
-  localStorage.setItem("CATALOGO", JSON.stringify(window.CATALOGO_LOCAL));
+  localStorage.setItem("catalogo", JSON.stringify(window.catalogo_local));
 }
-
-// Render productos cliente
-function renderProductosCliente() {
+// RENDER CLIENTE
+function renderProductosCliente(filtro = "") {
   const contenedor = document.getElementById("productos-lista");
   if (!contenedor) return;
 
   contenedor.innerHTML = "";
-  const filtrados = window.CATALOGO_LOCAL.filter(p => p.habilitado).sort((a, b) => a.id - b.id);
+  const filtrados = window.catalogo_local
+    .filter(p => p.habilitado)
+    .filter(p =>
+      p.name.toLowerCase().includes(filtro.toLowerCase()) ||
+      p.categoria.toLowerCase().includes(filtro.toLowerCase()) ||
+      (p.compania || "").toLowerCase().includes(filtro.toLowerCase())
+    )
+    .sort((a, b) => a.id - b.id);
 
   filtrados.forEach(p => {
     const col = document.createElement("div");
@@ -119,17 +125,13 @@ function renderProductosCliente() {
             <span class="fw-bold">$${p.precio.toLocaleString("es-CL")}</span>
             <div class="btn-group">
               <button class="btn btn-success btn-sm btn-cart" 
-                data-id="${p.id}" 
-                data-name="${p.name}" 
-                data-precio="${p.precio}" 
-                data-img="${p.img}">
+                data-id="${p.id}" data-name="${p.name}" 
+                data-precio="${p.precio}" data-img="${p.img}">
                 <i class="bi bi-cart"></i>
               </button>
               <button class="btn btn-outline-danger btn-sm btn-fav" 
-                data-id="${p.id}" 
-                data-name="${p.name}" 
-                data-precio="${p.precio}" 
-                data-img="${p.img}">
+                data-id="${p.id}" data-name="${p.name}" 
+                data-precio="${p.precio}" data-img="${p.img}">
                  <i class="bi bi-heart"></i>
               </button>
             </div>
@@ -139,33 +141,42 @@ function renderProductosCliente() {
     contenedor.appendChild(col);
   });
 }
-// Render productos administrador
-function renderAdminProductos() {
+// RENDER ADMIN
+function renderAdminProductos(filtro = "") {
   const tabla = document.getElementById("admin-productos");
   if (!tabla) return;
 
   tabla.innerHTML = "";
-  window.CATALOGO_LOCAL.forEach(p => {
+  const filtrados = window.catalogo_local.filter(p =>
+    p.name.toLowerCase().includes(filtro.toLowerCase()) ||
+    p.categoria.toLowerCase().includes(filtro.toLowerCase()) ||
+    (p.compania || "").toLowerCase().includes(filtro.toLowerCase())
+  );
+
+  filtrados.forEach(p => {
     tabla.innerHTML += `
-      <tr>
-        <td>${p.name}</td>
-        <td>$${p.precio.toLocaleString("es-CL")}</td>
-        <td>${p.desc}</td>
-        <td>${p.compania || "Sin asignar"}</td>
-        <td>
-          <span class="badge ${p.habilitado ? "bg-success" : "bg-danger"}">
-            ${p.habilitado ? "Habilitado" : "Inhabilitado"}
-          </span>
-        </td>
-        <td>
-          <button class="btn btn-secondary btn-sm btn-toggle" data-id="${p.id}">
-            ${p.habilitado ? "Inhabilitar" : "Habilitar"}
-          </button>
-          <button class="btn btn-primary btn-sm btn-edit" data-id="${p.id}">Editar</button>
-          <button class="btn btn-danger btn-sm btn-delete" data-id="${p.id}">Eliminar</button>
-        </td>
-      </tr>
-    `;
+  <tr>
+    <td>
+      <strong>${p.name}</strong>
+      <br>
+      <small class="text-muted"><i class="bi bi-truck"></i> ${p.compania || "Sin asignar"}</small>
+    </td>
+    <td>$${Number(p.precio).toLocaleString("es-CL")}</td>
+    <td>${p.desc}</td>
+    <td>
+      <span class="badge ${p.habilitado ? "bg-success" : "bg-danger"}">
+        ${p.habilitado ? "Habilitado" : "Inhabilitado"}
+      </span>
+    </td>
+    <td>
+      <button class="btn btn-secondary btn-sm btn-toggle" data-id="${p.id}">
+        ${p.habilitado ? "Inhabilitar" : "Habilitar"}
+      </button>
+      <button class="btn btn-primary btn-sm btn-edit" data-id="${p.id}">Editar</button>
+      <button class="btn btn-danger btn-sm btn-delete" data-id="${p.id}">Eliminar</button>
+    </td>
+  </tr>
+`;
   });
 
   document.querySelectorAll(".btn-toggle").forEach(btn =>
@@ -178,10 +189,9 @@ function renderAdminProductos() {
     btn.addEventListener("click", () => abrirEditar(btn.dataset.id))
   );
 }
-
-// Funciones admin
+// FUNCIONES ADMIN
 function toggleHabilitado(id) {
-  const producto = window.CATALOGO_LOCAL.find(p => p.id == id);
+  const producto = window.catalogo_local.find(p => p.id == id);
   if (!producto) return;
   producto.habilitado = !producto.habilitado;
   guardarCatalogo();
@@ -191,7 +201,7 @@ function toggleHabilitado(id) {
 
 function eliminarProducto(id) {
   if (!confirm("¿Eliminar producto?")) return;
-  window.CATALOGO_LOCAL = window.CATALOGO_LOCAL.filter(p => p.id != id);
+  window.catalogo_local = window.catalogo_local.filter(p => p.id != id);
   guardarCatalogo();
   renderAdminProductos();
   renderProductosCliente();
@@ -220,7 +230,7 @@ function guardarNuevoProducto() {
     habilitado
   };
 
-  window.CATALOGO_LOCAL.push(nuevo);
+  window.catalogo_local.push(nuevo);
   guardarCatalogo();
   renderAdminProductos();
   renderProductosCliente();
@@ -229,14 +239,14 @@ function guardarNuevoProducto() {
 }
 
 function abrirEditar(id) {
-  const producto = window.CATALOGO_LOCAL.find(p => p.id == id);
+  const producto = window.catalogo_local.find(p => p.id == id);
   if (!producto) return;
 
   document.getElementById("editar-id").value = producto.id;
   document.getElementById("editar-nombre").value = producto.name;
   document.getElementById("editar-precio").value = producto.precio;
   document.getElementById("editar-descripcion").value = producto.desc;
-  document.getElementById("editar-compania").value = producto.compania || "Chilexpress";
+  document.getElementById("editar-compania").value = producto.compania || "";
 
   const modal = new bootstrap.Modal(document.getElementById("modalEditar"));
   modal.show();
@@ -244,7 +254,7 @@ function abrirEditar(id) {
 
 function guardarEdicion() {
   const id = document.getElementById("editar-id").value;
-  const producto = window.CATALOGO_LOCAL.find(p => p.id == id);
+  const producto = window.catalogo_local.find(p => p.id == id);
   if (!producto) return;
 
   producto.name = document.getElementById("editar-nombre").value.trim();
@@ -258,8 +268,7 @@ function guardarEdicion() {
 
   bootstrap.Modal.getInstance(document.getElementById("modalEditar")).hide();
 }
-
-// Consejo del día
+// CONSEJO DEL DÍA
 document.addEventListener("DOMContentLoaded", () => {
   const btnConsejo = document.querySelector("#panel-huerto button.btn-primary");
   const textareaConsejo = document.querySelector("#panel-huerto textarea");
@@ -273,13 +282,51 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Mostrar consejo en Index
   const consejo = localStorage.getItem("consejo-del-dia");
   if (consejo && document.getElementById("consejo-texto")) {
     document.getElementById("consejo-texto").textContent = consejo;
   }
 
-  // Render inicial
   renderAdminProductos();
   renderProductosCliente();
+});
+// Mostrar productos filtrados
+function filtrarProductos(termino) {
+  const contenedor = document.getElementById("productos-lista");
+  contenedor.innerHTML = "";
+
+  const filtrados = PRODUCTOS.filter(p => p.habilitado && p.nombre.toLowerCase().includes(termino));
+
+  if (filtrados.length === 0) {
+    contenedor.innerHTML = `<p class="text-center">No se encontraron productos para "${termino}"</p>`;
+    return;
+  }
+
+  filtrados.forEach(p => {
+    const card = document.createElement("div");
+    card.classList.add("col-md-4");
+    card.innerHTML = `
+            <div class="card h-100 shadow-sm">
+                <img src="img/${p.nombre.replace(/\s+/g, '')}.jpg" class="card-img-top" alt="${p.nombre}">
+                <div class="card-body">
+                    <h5 class="card-title">${p.nombre}</h5>
+                    <p class="card-text">${p.descripcion}</p>
+                    <p class="fw-bold">$${p.precio}</p>
+                </div>
+            </div>
+        `;
+    contenedor.appendChild(card);
+  });
+}
+document.addEventListener("DOMContentLoaded", () => {
+  const inputAdminBuscar = document.querySelector("#admin-buscar");
+
+  if (inputAdminBuscar) {
+    inputAdminBuscar.addEventListener("input", () => {
+      const filtro = inputAdminBuscar.value.trim().toLowerCase();
+      renderAdminProductos(filtro);
+    });
+  }
+
+  renderAdminProductos();
 });

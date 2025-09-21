@@ -79,6 +79,44 @@
         <!-- Grilla de productos -->
         <div id="productos-lista" class="row g-4">
         </div>
+        <!-- Modal Detalle Producto -->
+        <div class="modal fade" id="modalDetalle" tabindex="-1">
+            <div class="modal-dialog modal-sm modal-dialog-centered">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 id="detalle-nombre" class="modal-title"></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body text-center">
+                        <img id="detalle-img" src="img/default.png" class="img-fluid mb-3" alt="Producto">
+                        <p id="detalle-desc"></p>
+                        <p>
+                            <span id="detalle-precio-original" class="text-decoration-line-through text-danger"></span>
+                            <span id="detalle-precio" class="fw-bold text-success"></span>
+                        </p>
+
+                        <div class="d-flex justify-content-center align-items-center mb-3">
+                            <button id="detalle-menos" class="btn btn-outline-secondary btn-sm">-</button>
+                            <input id="detalle-cantidad" type="number" value="1" class="form-control mx-2 text-center"
+                                style="width: 70px;" readonly>
+                            <button id="detalle-mas" class="btn btn-outline-secondary btn-sm">+</button>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button id="detalle-addcart" class="btn btn-success">
+                            <i class="bi bi-cart"></i> Añadir al carrito
+                        </button>
+                        <button id="detalle-fav" class="btn btn-outline-danger">
+                            <i class="bi bi-heart"></i> Favorito
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Paginación -->
         <nav class="d-flex justify-content-center mt-4">
             <ul id="paginacion" class="pagination">

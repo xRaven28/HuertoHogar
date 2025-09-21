@@ -1,53 +1,62 @@
-// ===============================
-// Datos iniciales desde localStorage
+
 let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 let favoritos = JSON.parse(localStorage.getItem("favoritos")) || [];
+let catalogo_local = JSON.parse(localStorage.getItem("catalogo")) || CATALOGO;
 
-// Normalización
+// Normalizar datos
 carrito = carrito.map(p => ({
   id: String(p.id),
   name: p.name || p.nombre || "",
-  precio: Number(p.precio || p.price || 0),
-  img: p.img || p.image || "",
-  cantidad: Number(p.cantidad || 1),
+  precio: Number(p.precio || 0),
+  img: p.img || "",
+  cantidad: Number(p.cantidad || 1)
 }));
-
 favoritos = favoritos.map(p => ({
   id: String(p.id),
-  name: p.name || p.nombre || "",
-  img: p.img || p.image || "",
+  name: p.name || "",
   precio: Number(p.precio || 0),
+  img: p.img || ""
 }));
 
+// Usuarios y admin
+const USUARIOS = JSON.parse(localStorage.getItem("usuariosAdmin")) || [
+  { id: 1, nombre: "Juan Bernal", estado: "Activo", bloqueado: false, rol: "admin", password: "1234", historial: [] },
+  { id: 2, nombre: "Yaii Selti", estado: "Activo", bloqueado: false, rol: "cliente", password: "1234", historial: [] },
+  { id: 3, nombre: "Alejandro Sepulveda", estado: "Inactivo", bloqueado: false, rol: "cliente", password: "1234", historial: [] }
+];
+localStorage.setItem("usuariosAdmin", JSON.stringify(USUARIOS));
 
-// Helpers de seguridad
+// Historial global
+let historial;
+try {
+  historial = JSON.parse(localStorage.getItem("historialUsuarios")) || [];
+} catch (e) {
+  historial = [];
+}
+
+
+// FUNCIONES HELPERS
 function escapeHtml(str = "") {
-  return String(str).replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
+  return String(str).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 }
 function escapeAttr(str = "") {
   return String(str).replaceAll('"', "&quot;");
 }
-
-
-// Toast
 function mostrarToast(msg, color = "#51af13ff") {
   let toast = document.getElementById("toast");
   if (!toast) {
     toast = document.createElement("div");
     toast.id = "toast";
-    toast.className = "toast-msg";
-    Object.assign(toast.style, {
-      position: "fixed",
-      right: "20px",
-      bottom: "20px",
-      padding: "10px 14px",
-      borderRadius: "8px",
-      color: "#fff",
-      zIndex: 9999,
-      display: "none"
-    });
+    toast.style.cssText = `
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      color: #fff;
+      z-index: 9999;
+      display: none;
+    `;
     document.body.appendChild(toast);
   }
   toast.textContent = msg;
@@ -57,7 +66,7 @@ function mostrarToast(msg, color = "#51af13ff") {
 }
 
 
-// Contadores
+// CARRITO Y FAVORITOS
 function actualizarContadores() {
   const c = document.getElementById("carrito-count");
   const f = document.getElementById("favoritos-count");
@@ -65,7 +74,6 @@ function actualizarContadores() {
   if (f) f.textContent = favoritos.length;
 }
 
-// Carrito
 function guardarCarrito() {
   localStorage.setItem("carrito", JSON.stringify(carrito));
   actualizarContadores();
@@ -75,20 +83,17 @@ function guardarCarrito() {
 function renderCarrito() {
   const tabla = document.getElementById("carrito-tabla");
   if (!tabla) return;
-
   tabla.innerHTML = "";
   let total = 0;
-
   carrito.forEach((p, i) => {
     const cantidad = Number(p.cantidad || 1);
     const precio = Number(p.precio || 0);
-    const subtotal = precio * cantidad;
+    const subtotal = cantidad * precio;
     total += subtotal;
-
     const fila = document.createElement("tr");
     fila.innerHTML = `
       <td>${escapeHtml(p.name)}</td>
-      <td style="width:120px;"><img src="${escapeAttr(p.img)}" alt="${escapeAttr(p.name)}" style="max-width:100px; max-height:60px; object-fit:contain;"></td>
+      <td style="width:120px;"><img src="${escapeAttr(p.img)}" style="max-width:100px; max-height:60px; object-fit:contain;"></td>
       <td>
         <button class="btn btn-sm btn-outline-secondary menos" data-index="${i}">-</button>
         <span class="mx-2">${cantidad}</span>
@@ -100,59 +105,46 @@ function renderCarrito() {
     `;
     tabla.appendChild(fila);
   });
-
   const totalEl = document.getElementById("carrito-total");
   if (totalEl) totalEl.textContent = "$" + total.toLocaleString("es-CL");
 
-  // Listeners
-  tabla.querySelectorAll(".menos").forEach(b =>
-    b.addEventListener("click", () => {
-      const idx = Number(b.dataset.index);
-      if (!Number.isInteger(idx)) return;
-      if (carrito[idx].cantidad > 1) carrito[idx].cantidad--;
-      else carrito.splice(idx, 1);
-      guardarCarrito();
-    })
-  );
-  tabla.querySelectorAll(".mas").forEach(b =>
-    b.addEventListener("click", () => {
-      const idx = Number(b.dataset.index);
-      if (!Number.isInteger(idx)) return;
-      carrito[idx].cantidad++;
-      guardarCarrito();
-    })
-  );
-  tabla.querySelectorAll(".eliminar").forEach(b =>
-    b.addEventListener("click", () => {
-      const idx = Number(b.dataset.index);
-      if (!Number.isInteger(idx)) return;
-      carrito.splice(idx, 1);
-      guardarCarrito();
-    })
-  );
+  tabla.querySelectorAll(".menos").forEach(b => b.addEventListener("click", () => {
+    const i = Number(b.dataset.index);
+    if (!Number.isInteger(i)) return;
+    if (carrito[i].cantidad > 1) carrito[i].cantidad--; else carrito.splice(i, 1);
+    guardarCarrito();
+  }));
+  tabla.querySelectorAll(".mas").forEach(b => b.addEventListener("click", () => {
+    const i = Number(b.dataset.index);
+    if (!Number.isInteger(i)) return;
+    carrito[i].cantidad++;
+    guardarCarrito();
+  }));
+  tabla.querySelectorAll(".eliminar").forEach(b => b.addEventListener("click", () => {
+    const i = Number(b.dataset.index);
+    if (!Number.isInteger(i)) return;
+    carrito.splice(i, 1);
+    guardarCarrito();
+  }));
 }
 
-
-// Favoritos
 function renderFavoritos() {
   const cont = document.getElementById("favoritos-lista");
   if (!cont) return;
-
   cont.innerHTML = "";
-  if (!Array.isArray(favoritos) || favoritos.length === 0) {
+  if (!favoritos.length) {
     cont.innerHTML = `<p class="text-center text-muted">No tienes productos en favoritos.</p>`;
     return;
   }
-
   favoritos.forEach((p, i) => {
     const card = document.createElement("div");
     card.className = "col-md-4";
     card.innerHTML = `
       <div class="card shadow-sm h-100 text-center">
-        <img src="${escapeAttr(p.img || 'img/default.png')}" class="card-img-top producto-img" alt="${escapeAttr(p.name)}">
+        <img src="${escapeAttr(p.img || 'img/default.png')}" class="card-img-top producto-img">
         <div class="card-body">
           <h5 class="card-title">${escapeHtml(p.name)}</h5>
-          <div class="d-flex justify-content-center gap-2">
+          <div class="d-flex gap-2 justify-content-center">
             <button class="btn btn-success btn-sm add-cart" data-id="${escapeAttr(p.id)}" data-name="${escapeAttr(p.name)}" data-precio="${Number(p.precio)}" data-img="${escapeAttr(p.img)}">
               <i class="bi bi-cart"></i> Añadir al carrito
             </button>
@@ -161,230 +153,349 @@ function renderFavoritos() {
             </button>
           </div>
         </div>
-      </div>`;
+      </div>
+    `;
     cont.appendChild(card);
   });
 
-  cont.querySelectorAll(".eliminar-fav").forEach(b =>
-    b.addEventListener("click", () => {
-      const idx = Number(b.dataset.index);
-      if (!Number.isInteger(idx)) return;
-      favoritos.splice(idx, 1);
+  cont.querySelectorAll(".eliminar-fav").forEach(b => b.addEventListener("click", () => {
+    const i = Number(b.dataset.index);
+    if (!Number.isInteger(i)) return;
+    favoritos.splice(i, 1);
+    localStorage.setItem("favoritos", JSON.stringify(favoritos));
+    actualizarContadores();
+    renderFavoritos();
+    mostrarToast("Producto eliminado de favoritos ❌", "#dc3545");
+  }));
+
+  cont.querySelectorAll(".add-cart").forEach(b => b.addEventListener("click", () => {
+    const id = b.dataset.id;
+    const name = b.dataset.name;
+    const precio = Number(b.dataset.precio);
+    const img = b.dataset.img;
+    const existing = carrito.find(p => String(p.id) === id);
+    if (existing) existing.cantidad++; else carrito.push({ id, name, precio, img, cantidad: 1 });
+    guardarCarrito();
+    mostrarToast(`${name} añadido al carrito 🛒`);
+  }));
+}
+
+// LOGIN USUARIOS
+let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [
+  { correo: "usuario1@mail.com", password: "1234", nombre: "Usuario1" }
+];
+localStorage.setItem("usuarios", JSON.stringify(usuarios));
+
+const formLogin = document.getElementById("form-login");
+const inputCorreo = document.getElementById("correo");
+const inputPassword = document.getElementById("password");
+const inputRecordarme = document.getElementById("recordarme");
+const divBienvenida = document.getElementById("bienvenida");
+const spanNombre = document.getElementById("usuario-nombre");
+const btnCerrar = document.getElementById("btn-cerrar-sesion");
+
+window.addEventListener("load", () => {
+  const usuarioActual = JSON.parse(localStorage.getItem("usuarioActual")) || JSON.parse(sessionStorage.getItem("usuarioActual"));
+  if (usuarioActual) mostrarBienvenida(usuarioActual);
+});
+
+function mostrarBienvenida(usuario) {
+  formLogin?.classList.add("d-none");
+  divBienvenida?.classList.remove("d-none");
+  spanNombre.textContent = usuario.nombre;
+}
+
+btnCerrar?.addEventListener("click", () => {
+  localStorage.removeItem("usuarioActual");
+  sessionStorage.removeItem("usuarioActual");
+  divBienvenida?.classList.add("d-none");
+  formLogin?.classList.remove("d-none");
+  inputCorreo.value = "";
+  inputPassword.value = "";
+  inputRecordarme.checked = false;
+});
+
+formLogin?.addEventListener("submit", function (e) {
+  e.preventDefault();
+  const correo = inputCorreo.value.trim();
+  const password = inputPassword.value.trim();
+  const usuario = usuarios.find(u => u.correo === correo && u.password === password);
+  if (usuario) {
+    if (inputRecordarme.checked) localStorage.setItem("usuarioActual", JSON.stringify(usuario));
+    else sessionStorage.setItem("usuarioActual", JSON.stringify(usuario));
+    mostrarBienvenida(usuario);
+  } else alert("Correo o contraseña incorrectos");
+});
+
+// ADMIN CUENTAS
+function guardarUsuarios() {
+  localStorage.setItem("usuariosAdmin", JSON.stringify(USUARIOS));
+}
+
+function guardarHistorial(evento) {
+  historial.push(`${new Date().toLocaleString()}: ${evento}`);
+  localStorage.setItem("historialUsuarios", JSON.stringify(historial));
+}
+
+function renderCuentas() {
+  const tbody = document.getElementById("admin-cuentas");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+
+  USUARIOS.forEach(usuario => {
+    const tr = document.createElement("tr");
+
+    // Nombre
+    const tdNombre = document.createElement("td");
+    tdNombre.textContent = usuario.nombre;
+    tr.appendChild(tdNombre);
+
+    // Rol
+    const tdRol = document.createElement("td");
+    tdRol.textContent = usuario.rol;
+    tr.appendChild(tdRol);
+
+    // Estado
+    const tdEstado = document.createElement("td");
+    tdEstado.textContent = usuario.bloqueado ? "Bloqueado" : usuario.estado;
+    tr.appendChild(tdEstado);
+
+    // Acciones
+    const tdAcciones = document.createElement("td");
+
+    // Cambiar rol
+    const btnRol = document.createElement("button");
+    btnRol.className = "btn btn-info btn-sm me-1";
+    btnRol.textContent = "Cambiar Rol";
+    btnRol.onclick = () => cambiarRol(usuario.id);
+    tdAcciones.appendChild(btnRol);
+
+    // Habilitar/Inhabilitar
+    const btnEstado = document.createElement("button");
+    btnEstado.className = "btn btn-warning btn-sm me-1";
+    btnEstado.textContent = usuario.estado === "Activo" ? "Inhabilitar" : "Habilitar";
+    btnEstado.onclick = () => toggleEstado(usuario.id);
+    tdAcciones.appendChild(btnEstado);
+
+    // Bloquear/Desbloquear
+    const btnBloqueo = document.createElement("button");
+    btnBloqueo.className = "btn btn-danger btn-sm";
+    btnBloqueo.textContent = usuario.bloqueado ? "Desbloquear" : "Bloquear";
+    btnBloqueo.onclick = () => toggleBloqueo(usuario.id);
+    tdAcciones.appendChild(btnBloqueo);
+
+    tr.appendChild(tdAcciones);
+    tbody.appendChild(tr);
+  });
+}
+
+function crearUsuarioAdmin() {
+  const nombre = prompt("Ingrese el nombre del usuario:");
+  if (!nombre) return mostrarToast("Debe ingresar un nombre", "#dc3545");
+  const correo = prompt("Ingrese el correo del usuario:");
+  if (!correo) return mostrarToast("Debe ingresar un correo", "#dc3545");
+  const password = prompt("Ingrese la contraseña:");
+  if (!password) return mostrarToast("Debe ingresar una contraseña", "#dc3545");
+
+  const nuevo = {
+    id: USUARIOS.length ? Math.max(...USUARIOS.map(u => u.id)) + 1 : 1,
+    nombre, correo, password,
+    rol: "cliente", estado: "Activo", bloqueado: false,
+    historial: [`Usuario creado (${new Date().toLocaleString()})`]
+  };
+
+  USUARIOS.push(nuevo);
+  guardarUsuarios();
+  renderCuentas();
+  guardarHistorial(`Se creó el usuario ${nombre} (${correo})`);
+  mostrarToast(`Usuario ${nombre} creado ✅`);
+}
+
+function cambiarRol(id) {
+  const usuario = USUARIOS.find(u => u.id === id);
+  if (!usuario) return;
+  usuario.rol = usuario.rol === "cliente" ? "admin cuentas" : "cliente";
+  usuario.historial.push(`Rol cambiado a ${usuario.rol} (${new Date().toLocaleString()})`);
+  guardarUsuarios();
+  renderCuentas();
+  guardarHistorial(`Se cambió el rol de ${usuario.nombre} a ${usuario.rol}`);
+  mostrarToast(`Rol de ${usuario.nombre} cambiado a ${usuario.rol}`);
+}
+
+function toggleEstado(id) {
+  const usuario = USUARIOS.find(u => u.id === id);
+  if (!usuario) return;
+  if (!usuario.bloqueado) {
+    usuario.estado = usuario.estado === "Activo" ? "Inactivo" : "Activo";
+    guardarUsuarios();
+    renderCuentas();
+    guardarHistorial(`Usuario ${usuario.nombre} ahora está ${usuario.estado}`);
+    mostrarToast(`Usuario ${usuario.nombre} ahora está ${usuario.estado}`);
+  } else mostrarToast(`Usuario ${usuario.nombre} está bloqueado`, "#dc3545");
+}
+
+function toggleBloqueo(id) {
+  const usuario = USUARIOS.find(u => u.id === id);
+  if (!usuario) return;
+  usuario.bloqueado = !usuario.bloqueado;
+  guardarUsuarios();
+  renderCuentas();
+  guardarHistorial(`Usuario ${usuario.nombre} ${usuario.bloqueado ? "bloqueado" : "desbloqueado"}`);
+  mostrarToast(`Usuario ${usuario.nombre} ${usuario.bloqueado ? "bloqueado" : "desbloqueado"}`);
+}
+
+function mostrarHistorial() {
+  const cont = document.getElementById("historial-lista");
+  if (!cont) return;
+  if (!historial.length) cont.innerHTML = "<p>No hay acciones registradas.</p>";
+  else cont.innerHTML = "<ul>" + historial.map(e => `<li>${e}</li>`).join("") + "</ul>";
+  const modal = new bootstrap.Modal(document.getElementById("modalHistorial"));
+  modal.show();
+}
+
+// PRODUCTOS / BUSCADOR / OFERTAS
+function abrirDetalleProducto(producto) {
+  const modal = new bootstrap.Modal(document.getElementById("modalDetalle"));
+  document.getElementById("detalle-nombre").textContent = producto.name;
+  document.getElementById("detalle-img").src = producto.img;
+  document.getElementById("detalle-desc").textContent = producto.desc || producto.descripcion || "Sin descripción.";
+  document.getElementById("detalle-precio").textContent = "$" + Number(producto.precio).toLocaleString("es-CL");
+  document.getElementById("detalle-precio-original").textContent = producto.oferta ? "$" + Number(producto.precio * 1.2).toLocaleString("es-CL") : "";
+  document.getElementById("detalle-cantidad").value = 1;
+
+  document.getElementById("detalle-mas").onclick = () => document.getElementById("detalle-cantidad").value++;
+  document.getElementById("detalle-menos").onclick = () => {
+    let val = Number(document.getElementById("detalle-cantidad").value);
+    if (val > 1) document.getElementById("detalle-cantidad").value = val - 1;
+  };
+
+  document.getElementById("detalle-addcart").onclick = () => {
+    const cantidad = Number(document.getElementById("detalle-cantidad").value);
+    const existing = carrito.find(p => String(p.id) === String(producto.id));
+    if (existing) existing.cantidad += cantidad;
+    else carrito.push({ id: producto.id, name: producto.name, precio: producto.precio, img: producto.img, cantidad });
+    guardarCarrito();
+    mostrarToast(`${producto.name} añadido al carrito 🛒`);
+    modal.hide();
+  };
+
+  document.getElementById("detalle-fav").onclick = () => {
+    if (!favoritos.some(p => String(p.id) === String(producto.id))) {
+      favoritos.push({ id: producto.id, name: producto.name, img: producto.img, precio: producto.precio });
       localStorage.setItem("favoritos", JSON.stringify(favoritos));
       actualizarContadores();
-      renderFavoritos();
-      mostrarToast("Producto eliminado de favoritos ❌", "#dc3545");
-    })
-  );
+      mostrarToast(`${producto.name} añadido a favoritos ❤️`);
+    } else mostrarToast(`${producto.name} ya está en favoritos`, "#ffc107");
+    modal.hide();
+  };
+
+  modal.show();
 }
-
-// Ofertas
-function renderOfertas() {
-  if (typeof CATALOGO === "undefined") return;
-  const idsOfertas = ["1", "2", "3", "4", "44", "76"];
-  const ofertas = CATALOGO.filter(p => idsOfertas.includes(String(p.id)));
-  const contenedor = document.getElementById("ofertas-semana");
-  if (!contenedor) return;
-
-  contenedor.innerHTML = ofertas.map(p => `
-    <div class="col-md-4 col-sm-6">
-      <div class="card h-100 text-center shadow-sm p-3">
-        <img src="${escapeAttr(p.img)}" class="producto-img mx-auto d-block" alt="${escapeAttr(p.name)}" />
-        <div class="card-body">
-          <h5 class="card-title">${escapeHtml(p.name)}</h5>
-          <p class="card-text">
-            <span class="text-danger text-decoration-line-through">
-              $${Number(p.precio * 1.2).toLocaleString("es-CL")}
-            </span>
-            <span class="text-success fw-bold ms-2">
-              $${Number(p.precio).toLocaleString("es-CL")}
-            </span>
-          </p>
-          <div class="d-flex gap-2 justify-content-center">
-            <button class="btn btn-success btn-sm btn-cart" data-id="${escapeAttr(p.id)}" data-name="${escapeAttr(p.name)}" data-precio="${Number(p.precio)}" data-img="${escapeAttr(p.img)}">
-              <i class="bi bi-cart"></i> Añadir
-            </button>
-            <button class="btn btn-outline-danger btn-sm btn-fav" data-id="${escapeAttr(p.id)}" data-name="${escapeAttr(p.name)}" data-precio="${Number(p.precio)}" data-img="${escapeAttr(p.img)}">
-              <i class="bi bi-heart"></i> Favorito
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  `).join("");
-}
-
-// Consejos diarios
-function startConsejos() {
-  const consejos = [
-    { titulo: "Come 5 frutas y verduras al día", texto: "Te aportan vitaminas, minerales y fibra para una vida más saludable." },
-    { titulo: "Mantente hidratado", texto: "Bebe al menos 2 litros de agua al día para mantener tu cuerpo funcionando bien." },
-    { titulo: "Haz ejercicio regularmente", texto: "30 minutos de actividad física diaria mejoran tu salud y ánimo." },
-    { titulo: "Prefiere alimentos frescos", texto: "Reduce el consumo de ultraprocesados y elige opciones naturales." },
-    { titulo: "Duerme bien", texto: "Un buen descanso fortalece tu sistema inmune y mejora la concentración." }
-  ];
-
-  let index = 0;
-  const tituloEl = document.getElementById("consejo-titulo");
-  const textoEl = document.getElementById("consejo-texto");
-  if (tituloEl && textoEl) {
-    setInterval(() => {
-      index = (index + 1) % consejos.length;
-      tituloEl.textContent = consejos[index].titulo;
-      textoEl.textContent = consejos[index].texto;
-    }, 5000);
-  }
-}
-
-// Checkout UI
-function setupCheckoutUI() {
-  const btnPagar = document.getElementById("btn-pagar");
-  if (btnPagar) btnPagar.addEventListener("click", () => {
-    const form = document.getElementById("form-pago");
-    if (form) form.style.display = "block";
-  });
-
-  const entrega = document.getElementById("entrega");
-  if (entrega) entrega.addEventListener("change", () => {
-    const box = document.getElementById("direccion-box");
-    if (box) box.style.display = entrega.value === "domicilio" ? "block" : "none";
-  });
-
-  const checkout = document.getElementById("checkout-form");
-  if (checkout) checkout.addEventListener("submit", (ev) => {
-    ev.preventDefault();
-    mostrarToast("✅ ¡Pedido confirmado! Gracias por tu compra.");
-    carrito = [];
-    guardarCarrito();
-    const form = document.getElementById("form-pago");
-    if (form) form.style.display = "none";
-    renderCarrito();
-  });
-}
-function filtrarYOrdenarProductos() {
-  if (typeof CATALOGO === "undefined") return;
+//FILTRO
+function filtrarYOrdenarProductos(termino = "") {
   const contenedor = document.getElementById("productos-lista");
   if (!contenedor) return;
 
-  let productos = [...CATALOGO];
 
-  // Filtrado por categoría
+  let productos = catalogo_local.filter(p => p.habilitado);
+
   const categoria = document.getElementById("categoria")?.value || "todos";
-  if (categoria !== "todos") productos = productos.filter(p => p.categoria === categoria);
-
-  // Orden
-  const orden = document.getElementById("orden")?.value || "relevancia";
-  switch (orden) {
-    case "precio-asc": productos.sort((a, b) => a.precio - b.precio); break;
-    case "precio-desc": productos.sort((a, b) => b.precio - a.precio); break;
-    case "nombre-asc": productos.sort((a, b) => a.name.localeCompare(b.name)); break;
-    case "nombre-desc": productos.sort((a, b) => b.name.localeCompare(a.name)); break;
+  if (categoria !== "todos") {
+    productos = productos.filter(p => p.categoria === categoria);
   }
+
+  if (termino) {
+    productos = productos.filter(p =>
+      p.name.toLowerCase().includes(termino) ||
+      (p.categoria?.toLowerCase() || "").includes(termino)
+    );
+  }
+
+  const orden = document.getElementById("orden")?.value || "relevancia";
+  if (orden === "precio-asc") productos.sort((a, b) => a.precio - b.precio);
+  else if (orden === "precio-desc") productos.sort((a, b) => b.precio - a.precio);
+  else if (orden === "nombre-asc") productos.sort((a, b) => a.name.localeCompare(b.name));
+  else if (orden === "nombre-desc") productos.sort((a, b) => b.name.localeCompare(a.name));
 
   contenedor.innerHTML = productos.map(p => `
     <div class="col-md-4 col-sm-6">
       <div class="card h-100 shadow-sm p-3 text-center">
-        <img src="${escapeAttr(p.img)}" class="producto-img mx-auto d-block" alt="${escapeAttr(p.name)}">
+        <img src="${p.img}" class="producto-img mx-auto d-block">
         <div class="card-body">
-          <h5 class="card-title">${escapeHtml(p.name)}</h5>
-          <p class="card-text">$${Number(p.precio).toLocaleString("es-CL")}</p>
-          <div class="d-flex gap-2 justify-content-center">
-            <button class="btn btn-success btn-sm btn-cart" data-id="${escapeAttr(p.id)}" data-name="${escapeAttr(p.name)}" data-precio="${Number(p.precio)}" data-img="${escapeAttr(p.img)}">
-              <i class="bi bi-cart"></i> Añadir
-            </button>
-            <button class="btn btn-outline-danger btn-sm btn-fav" data-id="${escapeAttr(p.id)}" data-name="${escapeAttr(p.name)}" data-precio="${Number(p.precio)}" data-img="${escapeAttr(p.img)}">
-              <i class="bi bi-heart"></i> Favorito
-            </button>
-          </div>
+          <h5 class="card-title">${p.name}</h5>
+          <p class="card-text">$${p.precio.toLocaleString("es-CL")}</p>
+          <button class="btn btn-primary btn-sm btn-ver-detalle" data-id="${p.id}">Ver Detalle</button>
         </div>
       </div>
     </div>
   `).join("");
+
+  document.querySelectorAll(".btn-ver-detalle").forEach(b => {
+    b.addEventListener("click", () => {
+      const id = b.dataset.id;
+      const producto = catalogo_local.find(p => String(p.id) === id);
+      if (producto) abrirDetalleProducto(producto);
+    });
+  });
 }
-
-// Escuchas de filtrado y orden
-document.getElementById("categoria")?.addEventListener("change", filtrarYOrdenarProductos);
-document.getElementById("orden")?.addEventListener("change", filtrarYOrdenarProductos);
-
-// Delegación global de botones
-document.addEventListener("click", e => {
-  const addBtn = e.target.closest(".btn-cart, .add-cart");
-  if (addBtn) {
-    const id = String(addBtn.dataset.id || "");
-    const name = addBtn.dataset.name || "Producto";
-    const precio = Number(addBtn.dataset.precio || 0);
-    const img = addBtn.dataset.img || "";
-
-    const existing = carrito.find(p => String(p.id) === id);
-    if (existing) existing.cantidad++;
-    else carrito.push({ id, name, precio, img, cantidad: 1 });
-
-    guardarCarrito();
-    mostrarToast(`${name} añadido al carrito 🛒`);
-    return;
-  }
-
-  const favBtn = e.target.closest(".btn-fav");
-  if (favBtn) {
-    const id = String(favBtn.dataset.id || "");
-    const name = favBtn.dataset.name || "Producto";
-    const img = favBtn.dataset.img || "";
-    const precio = Number(favBtn.dataset.precio || 0);
-
-    if (!favoritos.some(item => String(item.id) === id)) {
-      favoritos.push({ id, name, img, precio });
-      localStorage.setItem("favoritos", JSON.stringify(favoritos));
-      actualizarContadores();
-      mostrarToast(`${name} añadido a favoritos ❤️`);
-    } else {
-      mostrarToast(`${name} ya está en favoritos`, "#ffc107");
-    }
-    return;
-  }
+document.getElementById("categoria")?.addEventListener("change", () => {
+  filtrarYOrdenarProductos(document.getElementById("buscar-input")?.value.trim().toLowerCase());
 });
-function renderProductosCliente() {
-  if (typeof CATALOGO === "undefined") return;
+document.getElementById("orden")?.addEventListener("change", () => {
+  filtrarYOrdenarProductos(document.getElementById("buscar-input")?.value.trim().toLowerCase());
+});
+document.getElementById("buscar-input")?.addEventListener("input", () => {
+  filtrarYOrdenarProductos(document.getElementById("buscar-input").value.trim().toLowerCase());
+});
 
-  const contenedor = document.getElementById("productos-lista");
+
+function renderOfertas() {
+  const contenedor = document.getElementById("ofertas-semana");
   if (!contenedor) return;
+  const idsOfertas = ["1", "2", "3", "4", "44", "76"];
+  const ofertas = catalogo_local.filter(p => idsOfertas.includes(String(p.id)) && p.habilitado);
 
-  contenedor.innerHTML = CATALOGO.map(p => `
+  contenedor.innerHTML = ofertas.map(p => `
     <div class="col-md-4 col-sm-6">
-      <div class="card h-100 shadow-sm p-3 text-center">
-        <img src="${escapeAttr(p.img)}" class="producto-img mx-auto d-block" alt="${escapeAttr(p.name)}">
+      <div class="card h-100 text-center shadow-sm p-3">
+        <img src="${escapeAttr(p.img)}" class="producto-img mx-auto d-block">
         <div class="card-body">
           <h5 class="card-title">${escapeHtml(p.name)}</h5>
-          <p class="card-text">$${Number(p.precio).toLocaleString("es-CL")}</p>
-          <div class="d-flex gap-2 justify-content-center">
-            <button class="btn btn-success btn-sm btn-cart" 
-              data-id="${escapeAttr(p.id)}" 
-              data-name="${escapeAttr(p.name)}" 
-              data-precio="${Number(p.precio)}" 
-              data-img="${escapeAttr(p.img)}">
-              <i class="bi bi-cart"></i> Añadir
-            </button>
-            <button class="btn btn-outline-danger btn-sm btn-fav" 
-              data-id="${escapeAttr(p.id)}" 
-              data-name="${escapeAttr(p.name)}" 
-              data-precio="${Number(p.precio)}" 
-              data-img="${escapeAttr(p.img)}">
-              <i class="bi bi-heart"></i> Favorito
-            </button>
-          </div>
+          <p class="card-text">
+            <span class="text-decoration-line-through text-danger">$${(p.precio * 1.2).toLocaleString("es-CL")}</span>
+            <span class="fw-bold">$${p.precio.toLocaleString("es-CL")}</span>
+          </p>
+          <button class="btn btn-primary btn-sm btn-ver-detalle" data-id="${p.id}">Ver Detalle</button>
         </div>
       </div>
     </div>
   `).join("");
 }
 
-// Inicialización
+// BUSCADOR
+const inputBuscar = document.getElementById("buscar-input");
+const btnBuscar = document.getElementById("btn-buscar");
+
+btnBuscar?.addEventListener("click", () => {
+  const termino = inputBuscar.value.trim().toLowerCase();
+  if (!termino) return;
+  window.location.href = `Productos.html?buscar=${encodeURIComponent(termino)}`;
+});
+
+if (window.location.pathname.includes("Productos.html")) {
+  const params = new URLSearchParams(window.location.search);
+  const terminoBusqueda = params.get("buscar");
+  filtrarYOrdenarProductos(terminoBusqueda?.toLowerCase() || "");
+}
+
+inputBuscar?.addEventListener("input", () => filtrarYOrdenarProductos(inputBuscar.value.trim().toLowerCase()));
+
+// INICIALIZAR
 document.addEventListener("DOMContentLoaded", () => {
   actualizarContadores();
   renderCarrito();
   renderFavoritos();
-  renderOfertas();
-  setupCheckoutUI();
   filtrarYOrdenarProductos();
-  startConsejos();
-  if (typeof renderProductosCliente === "function") renderProductosCliente();
+  renderOfertas();
+  renderCuentas();
 });
