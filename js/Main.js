@@ -412,18 +412,21 @@ function abrirDetalleProducto(producto) {
   modal.show();
 }
 //FILTRO
+const PRODUCTOS_POR_PAGINA = 9;
+let paginaActual = 1;
+let productosFiltrados = []; 
+
+// FILTRAR Y ORDENAR PRODUCTOS
 function filtrarYOrdenarProductos(termino = "") {
-  const contenedor = document.getElementById("productos-lista");
-  if (!contenedor) return;
-
-
   let productos = catalogo_local.filter(p => p.habilitado);
 
+  // Filtro por categoría
   const categoria = document.getElementById("categoria")?.value || "todos";
   if (categoria !== "todos") {
     productos = productos.filter(p => p.categoria === categoria);
   }
 
+  // Filtro por búsqueda
   if (termino) {
     productos = productos.filter(p =>
       p.name.toLowerCase().includes(termino) ||
@@ -431,33 +434,22 @@ function filtrarYOrdenarProductos(termino = "") {
     );
   }
 
+  // Ordenamiento
   const orden = document.getElementById("orden")?.value || "relevancia";
   if (orden === "precio-asc") productos.sort((a, b) => a.precio - b.precio);
   else if (orden === "precio-desc") productos.sort((a, b) => b.precio - a.precio);
   else if (orden === "nombre-asc") productos.sort((a, b) => a.name.localeCompare(b.name));
   else if (orden === "nombre-desc") productos.sort((a, b) => b.name.localeCompare(a.name));
 
-  contenedor.innerHTML = productos.map(p => `
-    <div class="col-md-4 col-sm-6">
-      <div class="card h-100 shadow-sm p-3 text-center">
-        <img src="${p.img}" class="producto-img mx-auto d-block">
-        <div class="card-body">
-          <h5 class="card-title">${p.name}</h5>
-          <p class="card-text">$${p.precio.toLocaleString("es-CL")}</p>
-          <button class="btn btn-primary btn-sm btn-ver-detalle" data-id="${p.id}">Ver Detalle</button>
-        </div>
-      </div>
-    </div>
-  `).join("");
+  // Guardar productos filtrados y reiniciar paginación
+  productosFiltrados = productos;
+  paginaActual = 1;
 
-  document.querySelectorAll(".btn-ver-detalle").forEach(b => {
-    b.addEventListener("click", () => {
-      const id = b.dataset.id;
-      const producto = catalogo_local.find(p => String(p.id) === id);
-      if (producto) abrirDetalleProducto(producto);
-    });
-  });
+  // Renderizar la primera página
+  renderProductosConPaginacion(productosFiltrados);
 }
+
+// Eventos de filtrado
 document.getElementById("categoria")?.addEventListener("change", () => {
   filtrarYOrdenarProductos(document.getElementById("buscar-input")?.value.trim().toLowerCase());
 });
@@ -468,21 +460,24 @@ document.getElementById("buscar-input")?.addEventListener("input", () => {
   filtrarYOrdenarProductos(document.getElementById("buscar-input").value.trim().toLowerCase());
 });
 
-
+// OFERTAS
 function renderOfertas() {
   const contenedor = document.getElementById("ofertas-semana");
   if (!contenedor) return;
+
   const idsOfertas = ["1", "2", "3", "4", "44", "76"];
   const ofertas = catalogo_local.filter(p => idsOfertas.includes(String(p.id)) && p.habilitado);
 
   contenedor.innerHTML = ofertas.map(p => `
     <div class="col-md-4 col-sm-6">
       <div class="card h-100 text-center shadow-sm p-3">
-        <img src="${escapeAttr(p.img)}" class="producto-img mx-auto d-block">
+        <img src="${escapeAttr(p.img)}" class="producto-img mx-auto d-block" style="max-width:150px; max-height:150px; object-fit:contain;">
         <div class="card-body">
           <h5 class="card-title">${escapeHtml(p.name)}</h5>
           <p class="card-text">
-            <span class="text-decoration-line-through text-danger">$${(p.precio * 1.2).toLocaleString("es-CL")}</span>
+            <span class="text-decoration-line-through text-danger">
+              $${(p.precio * 1.2).toLocaleString("es-CL")}
+            </span>
             <span class="fw-bold">$${p.precio.toLocaleString("es-CL")}</span>
           </p>
           <button class="btn btn-primary btn-sm btn-ver-detalle" data-id="${p.id}">Ver Detalle</button>
@@ -490,6 +485,65 @@ function renderOfertas() {
       </div>
     </div>
   `).join("");
+}
+
+// PAGINACIÓN Y RENDERIZADO DE PRODUCTOS
+function renderProductosConPaginacion(listaProductos) {
+  const contenedor = document.getElementById("productos-container");
+  contenedor.innerHTML = "";
+
+  const inicio = (paginaActual - 1) * PRODUCTOS_POR_PAGINA;
+  const fin = inicio + PRODUCTOS_POR_PAGINA;
+  const productosPagina = listaProductos.slice(inicio, fin);
+
+  productosPagina.forEach(producto => {
+    const card = document.createElement("div");
+    card.className = "col-md-4 col-sm-6";
+    card.innerHTML = `
+      <div class="card h-100 shadow-sm p-3 text-center">
+        <img src="${producto.img}" class="producto-img mx-auto d-block" 
+             alt="${producto.name}" 
+             style="max-width:150px; max-height:150px; object-fit:contain;">
+        <div class="card-body">
+          <h5 class="card-title">${producto.name}</h5>
+          <p class="card-text">$${producto.precio.toLocaleString("es-CL")}</p>
+          <button class="btn btn-primary btn-sm btn-ver-detalle" data-id="${producto.id}">Ver Detalle</button>
+        </div>
+      </div>
+    `;
+    contenedor.appendChild(card);
+  });
+
+  // Activar eventos de Ver Detalle
+  document.querySelectorAll(".btn-ver-detalle").forEach(boton => {
+    boton.addEventListener("click", () => {
+      const id = boton.dataset.id;
+      const producto = catalogo_local.find(p => String(p.id) === id);
+      if (producto) abrirDetalleProducto(producto);
+    });
+  });
+  renderPaginacion(listaProductos.length);
+}
+
+// RENDER PAGINACIÓN
+function renderPaginacion(totalProductos) {
+  const paginacion = document.getElementById("paginacion");
+  paginacion.innerHTML = "";
+
+  const totalPaginas = Math.ceil(totalProductos / PRODUCTOS_POR_PAGINA);
+
+  for (let i = 1; i <= totalPaginas; i++) {
+    const btn = document.createElement("button");
+    btn.className = `btn btn-sm ${i === paginaActual ? "btn-primary" : "btn-outline-primary"} mx-1`;
+    btn.textContent = i;
+
+    btn.addEventListener("click", () => {
+      paginaActual = i;
+      renderProductosConPaginacion(productosFiltrados);
+    });
+
+    paginacion.appendChild(btn);
+  }
 }
 
 // BUSCADOR
@@ -508,14 +562,12 @@ if (window.location.pathname.includes("Productos.html")) {
   filtrarYOrdenarProductos(terminoBusqueda?.toLowerCase() || "");
 }
 
-inputBuscar?.addEventListener("input", () => filtrarYOrdenarProductos(inputBuscar.value.trim().toLowerCase()));
-
-// INICIALIZAR
+// INICIALIZACIÓN
 document.addEventListener("DOMContentLoaded", () => {
   actualizarContadores();
   renderCarrito();
   renderFavoritos();
-  filtrarYOrdenarProductos();
   renderOfertas();
   renderCuentas();
+  filtrarYOrdenarProductos(); 
 });

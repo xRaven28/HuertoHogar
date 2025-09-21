@@ -27,6 +27,7 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item"><a class="nav-link active" href="index.html">Inicio</a></li>
                     <li class="nav-item"><a class="nav-link" href="Productos.html">Productos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Recetas.html">Recetas</a></li>
                     <li class="nav-item"><a class="nav-link" href="Mi_Cuenta.html">Mi Cuenta</a></li>
                     <li class="nav-item"><a class="nav-link" href="Carrito_Compra.html">Carrito</a></li>
                     <li class="nav-item"><a class="nav-link" href="Contacto.html">Contacto</a></li>
@@ -76,9 +77,6 @@
             </div>
         </div>
 
-        <!-- Grilla de productos -->
-        <div id="productos-lista" class="row g-4">
-        </div>
         <!-- Modal Detalle Producto -->
         <div class="modal fade" id="modalDetalle" tabindex="-1">
             <div class="modal-dialog modal-sm modal-dialog-centered">
@@ -117,11 +115,11 @@
             </div>
         </div>
 
-        <!-- Paginación -->
-        <nav class="d-flex justify-content-center mt-4">
-            <ul id="paginacion" class="pagination">
-            </ul>
-        </nav>
+        <div class="container my-5">
+            <div id="productos-container" class="row g-4"></div>
+            <div id="paginacion" class="text-center mt-4"></div>
+        </div>
+
     </main>
     <script>
         // Navbar transparente al hacer scroll
@@ -134,6 +132,39 @@
             }
         });
     </script>
+    <footer class="footer-custom text-white pt-4 pb-2">
+        <div class="row px-5">
+            <!-- Sección de contacto -->
+            <div class="col-md-4 mb-3">
+                <h5>Contacto</h5>
+                <p>Email: contacto@huertohogar.cl</p>
+                <p>Tel: +56 9 1234 5678</p>
+                <p>Dirección: Calle Ejemplo 123, Concepción, Chile</p>
+            </div>
+
+            <!-- Sección de enlaces rápidos -->
+            <div class="col-md-4 mb-3">
+                <h5>Enlaces útiles</h5>
+                <ul class="list-unstyled">
+                    <li><a href="index.html" class="text-white text-decoration-none">Inicio</a></li>
+                    <li><a href="productos.html" class="text-white text-decoration-none">Productos</a></li>
+                    <li><a href="recetas.html" class="text-white text-decoration-none">Recetas</a></li>
+                    <li><a href="https://github.com/xRaven28/HuertoHogar.git"
+                            class="text-white text-decoration-none">GitHub de esta página</a></li>
+                </ul>
+            </div>
+
+            <!-- Sección redes sociales -->
+            <div class="col-md-4 mb-3">
+                <h5>Síguenos</h5>
+                <a href="#" class="text-white me-2"><i class="bi bi-facebook"></i> Facebook</a><br>
+                <a href="#" class="text-white me-2"><i class="bi bi-instagram"></i> Instagram</a><br>
+                <a href="#" class="text-white me-2"><i class="bi bi-whatsapp"></i> WhatsApp</a>
+            </div>
+        </div>
+        <hr class="bg-white mx-5">
+        <p class="text-center mb-0">&copy; 2025 Huerto Hogar. Todos los derechos reservados.</p>
+    </footer>
 
     <script src="js/productos.js"></script>
     <script src="js/main.js"></script>
