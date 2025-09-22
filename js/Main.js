@@ -127,6 +127,107 @@ function renderCarrito() {
     guardarCarrito();
   }));
 }
+// PAGO Y BOLETA
+const btnPagar = document.getElementById("btn-pagar");
+const formPago = document.getElementById("form-pago");
+const checkoutForm = document.getElementById("checkout-form");
+const entregaSelect = document.getElementById("entrega");
+const direccionBox = document.getElementById("direccion-box");
+const direccionInput = document.getElementById("direccion");
+
+btnPagar?.addEventListener("click", () => {
+  if (!carrito.length) {
+    mostrarToast("No tienes productos en el carrito ❌", "#dc3545");
+    return;
+  }
+  formPago.style.display = "block";
+  window.scrollTo({ top: formPago.offsetTop, behavior: "smooth" });
+});
+
+// Mostrar campo de dirección solo si entrega a domicilio
+entregaSelect?.addEventListener("change", () => {
+  if (entregaSelect.value === "domicilio") direccionBox.style.display = "block";
+  else direccionBox.style.display = "none";
+});
+
+// Confirmar compra
+checkoutForm?.addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (!carrito.length) return mostrarToast("No hay productos en el carrito ❌", "#dc3545");
+
+  const metodoEntrega = entregaSelect.value;
+  const direccion = direccionInput.value.trim();
+  const metodoPago = document.getElementById("pago").value;
+
+  if (!metodoEntrega || !metodoPago) {
+    mostrarToast("Debes seleccionar método de entrega y pago", "#dc3545");
+    return;
+  }
+  if (metodoEntrega === "domicilio" && !direccion) {
+    mostrarToast("Debes ingresar la dirección de entrega", "#dc3545");
+    return;
+  }
+
+  // Generar boleta
+  const fecha = new Date().toLocaleString();
+  let total = carrito.reduce((acc, p) => acc + p.precio * p.cantidad, 0);
+  let htmlBoleta = `
+    <h2>HuertoHogar - Boleta de Compra</h2>
+    <p><strong>Fecha:</strong> ${fecha}</p>
+    <p><strong>Método de entrega:</strong> ${metodoEntrega}${metodoEntrega==="domicilio"?` (${direccion})`:''}</p>
+    <p><strong>Método de pago:</strong> ${metodoPago}</p>
+    <table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;width:100%">
+      <tr>
+        <th>Producto</th>
+        <th>Cantidad</th>
+        <th>Precio Unitario</th>
+        <th>Subtotal</th>
+      </tr>
+      ${carrito.map(p => `
+        <tr>
+          <td>${escapeHtml(p.name)}</td>
+          <td>${p.cantidad}</td>
+          <td>$${p.precio.toLocaleString("es-CL")}</td>
+          <td>$${(p.precio * p.cantidad).toLocaleString("es-CL")}</td>
+        </tr>
+      `).join('')}
+      <tr>
+        <td colspan="3"><strong>Total</strong></td>
+        <td><strong>$${total.toLocaleString("es-CL")}</strong></td>
+      </tr>
+    </table>
+    <p>¡Gracias por tu compra! Se ha enviado la boleta a tu correo.</p>
+    <button id="descargar-boleta" style="margin-top:10px;">Descargar Boleta</button>
+  `;
+
+  // Crear modal temporal
+  const modalDiv = document.createElement("div");
+  modalDiv.innerHTML = `
+    <div class="modal fade" id="modalBoleta" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content p-3">${htmlBoleta}</div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modalDiv);
+  const modal = new bootstrap.Modal(document.getElementById("modalBoleta"));
+  modal.show();
+
+  // Descargar boleta
+  document.getElementById("descargar-boleta")?.addEventListener("click", () => {
+    const printWindow = window.open("", "", "width=800,height=600");
+    printWindow.document.write(htmlBoleta);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+  });
+
+  // Vaciar carrito
+  carrito = [];
+  guardarCarrito();
+  formPago.style.display = "none";
+});
 
 function renderFavoritos() {
   const cont = document.getElementById("favoritos-lista");
