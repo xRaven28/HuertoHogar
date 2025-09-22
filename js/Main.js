@@ -414,7 +414,7 @@ function abrirDetalleProducto(producto) {
 //FILTRO
 const PRODUCTOS_POR_PAGINA = 9;
 let paginaActual = 1;
-let productosFiltrados = []; 
+let productosFiltrados = [];
 
 // FILTRAR Y ORDENAR PRODUCTOS
 function filtrarYOrdenarProductos(termino = "") {
@@ -480,12 +480,64 @@ function renderOfertas() {
             </span>
             <span class="fw-bold">$${p.precio.toLocaleString("es-CL")}</span>
           </p>
-          <button class="btn btn-primary btn-sm btn-ver-detalle" data-id="${p.id}">Ver Detalle</button>
+          <div class="d-flex gap-2 justify-content-center">
+            <button class="btn btn-success btn-sm add-cart" 
+                    data-id="${escapeAttr(p.id)}" 
+                    data-name="${escapeAttr(p.name)}" 
+                    data-precio="${p.precio}" 
+                    data-img="${escapeAttr(p.img)}">
+              🛒 Añadir al carrito
+            </button>
+            <button class="btn btn-danger btn-sm add-fav" 
+                    data-id="${escapeAttr(p.id)}" 
+                    data-name="${escapeAttr(p.name)}" 
+                    data-precio="${p.precio}" 
+                    data-img="${escapeAttr(p.img)}">
+              ❤️ Favorito
+            </button>
+          </div>
         </div>
       </div>
     </div>
   `).join("");
+
+  // Eventos de carrito
+  contenedor.querySelectorAll(".add-cart").forEach(boton => {
+    boton.addEventListener("click", () => {
+      const id = boton.dataset.id;
+      const name = boton.dataset.name;
+      const precio = Number(boton.dataset.precio);
+      const img = boton.dataset.img;
+
+      const existing = carrito.find(p => String(p.id) === id);
+      if (existing) existing.cantidad++;
+      else carrito.push({ id, name, precio, img, cantidad: 1 });
+
+      guardarCarrito();
+      mostrarToast(`${name} añadido al carrito 🛒`);
+    });
+  });
+
+  // Eventos de favorito
+  contenedor.querySelectorAll(".add-fav").forEach(boton => {
+    boton.addEventListener("click", () => {
+      const id = boton.dataset.id;
+      const name = boton.dataset.name;
+      const precio = Number(boton.dataset.precio);
+      const img = boton.dataset.img;
+
+      if (!favoritos.some(p => String(p.id) === id)) {
+        favoritos.push({ id, name, precio, img });
+        localStorage.setItem("favoritos", JSON.stringify(favoritos));
+        actualizarContadores();
+        mostrarToast(`${name} añadido a favoritos ❤️`);
+      } else {
+        mostrarToast(`${name} ya está en favoritos`, "#ffc107");
+      }
+    });
+  });
 }
+
 
 // PAGINACIÓN Y RENDERIZADO DE PRODUCTOS
 function renderProductosConPaginacion(listaProductos) {
@@ -561,7 +613,6 @@ if (window.location.pathname.includes("Productos.html")) {
   const terminoBusqueda = params.get("buscar");
   filtrarYOrdenarProductos(terminoBusqueda?.toLowerCase() || "");
 }
-
 // INICIALIZACIÓN
 document.addEventListener("DOMContentLoaded", () => {
   actualizarContadores();
@@ -569,5 +620,5 @@ document.addEventListener("DOMContentLoaded", () => {
   renderFavoritos();
   renderOfertas();
   renderCuentas();
-  filtrarYOrdenarProductos(); 
+  filtrarYOrdenarProductos();
 });
