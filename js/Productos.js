@@ -91,17 +91,20 @@ window.CATALOGO = [
   { id: "82", name: "Mermelada de Frambuesa", precio: 2800, categoria: "otros", img: "img/mermelada frambuesa/MermeladaFrambuesa_1.webp", desc: "Mermelada de frambuesa fresca, intensa y natural.", habilitado: true },
   { id: "83", name: "Mermelada de Arándano", precio: 2800, categoria: "otros", img: "img/Mermeladas/Mermelada_arandano_1.png", desc: "Mermelada artesanal de arándano, llena de sabor.", habilitado: true },
 ];
+
 window.catalogo_local = JSON.parse(localStorage.getItem("catalogo")) || window.CATALOGO;
 
 function guardarCatalogo() {
   localStorage.setItem("catalogo", JSON.stringify(window.catalogo_local));
 }
-// RENDER CLIENTE
+
+//RENDER CLIENTE
 function renderProductosCliente(filtro = "") {
-  const contenedor = document.getElementById("productos-lista");
+  const contenedor = document.getElementById("productos-container"); 
   if (!contenedor) return;
 
   contenedor.innerHTML = "";
+
   const filtrados = window.catalogo_local
     .filter(p => p.habilitado)
     .filter(p =>
@@ -109,8 +112,13 @@ function renderProductosCliente(filtro = "") {
       p.categoria.toLowerCase().includes(filtro.toLowerCase()) ||
       (p.compania || "").toLowerCase().includes(filtro.toLowerCase())
     )
-    .sort((a, b) => a.id - b.id);
+    .sort((a, b) => Number(a.id) - Number(b.id));
 
+  if (filtrados.length === 0) {
+    contenedor.innerHTML = `<p class="text-center">No se encontraron productos para "${filtro}"</p>`;
+    return;
+  }
+  
   filtrados.forEach(p => {
     const col = document.createElement("div");
     col.className = "col-xl-3 col-lg-4 col-md-6";
@@ -141,6 +149,7 @@ function renderProductosCliente(filtro = "") {
     contenedor.appendChild(col);
   });
 }
+
 // RENDER ADMIN
 function renderAdminProductos(filtro = "") {
   const tabla = document.getElementById("admin-productos");
@@ -155,30 +164,30 @@ function renderAdminProductos(filtro = "") {
 
   filtrados.forEach(p => {
     tabla.innerHTML += `
-  <tr>
-    <td>
-      <strong>${p.name}</strong>
-      <br>
-      <small class="text-muted"><i class="bi bi-truck"></i> ${p.compania || "Sin asignar"}</small>
-    </td>
-    <td>$${Number(p.precio).toLocaleString("es-CL")}</td>
-    <td>${p.desc}</td>
-    <td>
-      <span class="badge ${p.habilitado ? "bg-success" : "bg-danger"}">
-        ${p.habilitado ? "Habilitado" : "Inhabilitado"}
-      </span>
-    </td>
-    <td>
-      <button class="btn btn-secondary btn-sm btn-toggle" data-id="${p.id}">
-        ${p.habilitado ? "Inhabilitar" : "Habilitar"}
-      </button>
-      <button class="btn btn-primary btn-sm btn-edit" data-id="${p.id}">Editar</button>
-      <button class="btn btn-danger btn-sm btn-delete" data-id="${p.id}">Eliminar</button>
-    </td>
-  </tr>
-`;
+      <tr>
+        <td>
+          <strong>${p.name}</strong>
+          <br>
+          <small class="text-muted"><i class="bi bi-truck"></i> ${p.compania || "Sin asignar"}</small>
+        </td>
+        <td>$${Number(p.precio).toLocaleString("es-CL")}</td>
+        <td>${p.desc}</td>
+        <td>
+          <span class="badge ${p.habilitado ? "bg-success" : "bg-danger"}">
+            ${p.habilitado ? "Habilitado" : "Inhabilitado"}
+          </span>
+        </td>
+        <td>
+          <button class="btn btn-secondary btn-sm btn-toggle" data-id="${p.id}">
+            ${p.habilitado ? "Inhabilitar" : "Habilitar"}
+          </button>
+          <button class="btn btn-primary btn-sm btn-edit" data-id="${p.id}">Editar</button>
+          <button class="btn btn-danger btn-sm btn-delete" data-id="${p.id}">Eliminar</button>
+        </td>
+      </tr>`;
   });
 
+  // Eventos dinámicos
   document.querySelectorAll(".btn-toggle").forEach(btn =>
     btn.addEventListener("click", () => toggleHabilitado(btn.dataset.id))
   );
@@ -189,7 +198,8 @@ function renderAdminProductos(filtro = "") {
     btn.addEventListener("click", () => abrirEditar(btn.dataset.id))
   );
 }
-// FUNCIONES ADMIN
+
+//FUNCIONES ADMIN 
 function toggleHabilitado(id) {
   const producto = window.catalogo_local.find(p => p.id == id);
   if (!producto) return;
@@ -268,7 +278,8 @@ function guardarEdicion() {
 
   bootstrap.Modal.getInstance(document.getElementById("modalEditar")).hide();
 }
-// CONSEJO DEL DÍA
+
+// CONSEJO DEL DÍA 
 document.addEventListener("DOMContentLoaded", () => {
   const btnConsejo = document.querySelector("#panel-huerto button.btn-primary");
   const textareaConsejo = document.querySelector("#panel-huerto textarea");
@@ -287,37 +298,12 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("consejo-texto").textContent = consejo;
   }
 
+  // Inicialización
   renderAdminProductos();
   renderProductosCliente();
 });
-// Mostrar productos filtrados
-function filtrarProductos(termino) {
-  const contenedor = document.getElementById("productos-lista");
-  contenedor.innerHTML = "";
 
-  const filtrados = PRODUCTOS.filter(p => p.habilitado && p.nombre.toLowerCase().includes(termino));
-
-  if (filtrados.length === 0) {
-    contenedor.innerHTML = `<p class="text-center">No se encontraron productos para "${termino}"</p>`;
-    return;
-  }
-
-  filtrados.forEach(p => {
-    const card = document.createElement("div");
-    card.classList.add("col-md-4");
-    card.innerHTML = `
-            <div class="card h-100 shadow-sm">
-                <img src="img/${p.nombre.replace(/\s+/g, '')}.jpg" class="card-img-top" alt="${p.nombre}">
-                <div class="card-body">
-                    <h5 class="card-title">${p.nombre}</h5>
-                    <p class="card-text">${p.descripcion}</p>
-                    <p class="fw-bold">$${p.precio}</p>
-                </div>
-            </div>
-        `;
-    contenedor.appendChild(card);
-  });
-}
+//  BÚSQUEDA
 document.addEventListener("DOMContentLoaded", () => {
   const inputAdminBuscar = document.querySelector("#admin-buscar");
 
@@ -327,6 +313,4 @@ document.addEventListener("DOMContentLoaded", () => {
       renderAdminProductos(filtro);
     });
   }
-
-  renderAdminProductos();
 });

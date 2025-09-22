@@ -709,10 +709,10 @@ btnBuscar?.addEventListener("click", () => {
   window.location.href = `Productos.html?buscar=${encodeURIComponent(termino)}`;
 });
 
-if (window.location.pathname.includes("Productos.html")) {
+if (window.location.pathname.toLowerCase().includes("Productos.html")) {
   const params = new URLSearchParams(window.location.search);
-  const terminoBusqueda = params.get("buscar");
-  filtrarYOrdenarProductos(terminoBusqueda?.toLowerCase() || "");
+  const terminoBusqueda = params.get("buscar")?.toLowerCase() || "";
+  renderProductosCliente(terminoBusqueda);
 }
 // INICIALIZACIÓN
 document.addEventListener("DOMContentLoaded", () => {

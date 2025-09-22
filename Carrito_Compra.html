@@ -27,6 +27,7 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item"><a class="nav-link" href="Index.html">Inicio</a></li>
                     <li class="nav-item"><a class="nav-link active" href="Productos.html">Productos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Recetas.html">Recetas</a></li>
                     <li class="nav-item"><a class="nav-link" href="Mi_Cuenta.html">Mi Cuenta</a></li>
                     <li class="nav-item"><a class="nav-link" href="Carrito_Compra.html">Carrito</a></li>
                     <li class="nav-item"><a class="nav-link" href="Contacto.html">Contacto</a></li>
@@ -34,13 +35,13 @@
                 </ul>
 
                 <form class="d-flex align-items-center">
-                    <input id="buscar-input" class="form-control me-2" type="text" placeholder="Buscar producto...">
-                    <button class="btn btn-huerto me-3" type="button">Buscar</button>
+                    <input id="buscar-input" class="form-control me-2" type="text" placeholder="Buscar producto..." />
+                    <button id="btn-buscar" class="btn btn-huerto me-3" type="button">Buscar</button>
                     <a href="Carrito_Compra.html" class="icon-link me-3">
                         <i class="bi bi-cart3"></i>
                         <span id="carrito-count" class="badge bg-success">0</span>
                     </a>
-                    <a href="#" class="icon-link">
+                    <a href="Favoritos.html" class="icon-link">
                         <i class="bi bi-heart"></i>
                         <span id="favoritos-count" class="badge bg-danger">0</span>
                     </a>
@@ -105,7 +106,7 @@
             </form>
         </div>
     </main>
-    
+
     <script>
         // Navbar transparente al hacer scroll
         window.addEventListener("scroll", function () {

@@ -37,11 +37,17 @@
                 </ul>
 
                 <form class="d-flex align-items-center">
-                    <input class="form-control me-2" type="text" placeholder="Buscar">
-                    <button class="btn btn-huerto me-3" type="button">Buscar</button>
+                    <input id="buscar-input" class="form-control me-2" type="text" placeholder="Buscar producto..." />
+                    <button id="btn-buscar" class="btn btn-huerto me-3" type="button">Buscar</button>
                     <!-- Íconos -->
-                    <a href="Carrito_Compra.html" class="icon-link me-3"><i class="bi bi-cart3"></i></a>
-                    <a href="#" class="icon-link"><i class="bi bi-heart"></i></a>
+                    <a href="Carrito_Compra.html" class="icon-link me-3">
+                        <i class="bi bi-cart3"></i>
+                        <span id="carrito-count" class="badge bg-success">0</span>
+                    </a>
+                    <a href="Favoritos.html" class="icon-link">
+                        <i class="bi bi-heart"></i>
+                        <span id="favoritos-count" class="badge bg-danger">0</span>
+                    </a>
                 </form>
             </div>
         </div>
