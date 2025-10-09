@@ -137,11 +137,6 @@ function renderProductosCliente(filtro = "") {
                 data-precio="${p.precio}" data-img="${p.img}">
                 <i class="bi bi-cart"></i>
               </button>
-              <button class="btn btn-outline-danger btn-sm btn-fav" 
-                data-id="${p.id}" data-name="${p.name}" 
-                data-precio="${p.precio}" data-img="${p.img}">
-                 <i class="bi bi-heart"></i>
-              </button>
             </div>
           </div>
         </div>
@@ -289,7 +284,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const texto = textareaConsejo.value.trim();
       if (!texto) return alert("Escribe un consejo válido");
       localStorage.setItem("consejo-del-dia", texto);
-      alert("Consejo guardado ✅");
+      alert("Consejo guardado");
     });
   }
 

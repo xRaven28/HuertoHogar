@@ -14,38 +14,43 @@
 <body>
     <nav class="navbar navbar-expand-sm navbar-huerto fixed-top">
         <div class="container-fluid">
+            <!-- LOGO -->
             <a class="navbar-brand d-flex align-items-center" href="index.html">
                 <img src="img/LogoHuerto.png" alt="Logo Huerto" width="45" height="45"
                     class="d-inline-block align-text-top me-2" />
                 <span class="brand-text">HuertoHogar</span>
             </a>
+
+            <!-- BOTÓN RESPONSIVE -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
+            <!-- MENÚ -->
             <div class="collapse navbar-collapse" id="mynavbar">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item"><a class="nav-link active" href="index.html">Inicio</a></li>
                     <li class="nav-item"><a class="nav-link" href="Productos.html">Productos</a></li>
                     <li class="nav-item"><a class="nav-link" href="Recetas.html">Recetas</a></li>
-                    <li class="nav-item"><a class="nav-link" href="Mi_Cuenta.html">Mi Cuenta</a></li>
-                    <li class="nav-item"><a class="nav-link" href="Carrito_Compra.html">Carrito</a></li>
                     <li class="nav-item"><a class="nav-link" href="Contacto.html">Contacto</a></li>
                     <li class="nav-item"><a class="nav-link" href="Quienes_Somos.html">Quienes Somos</a></li>
                 </ul>
+
+                <!-- BUSCADOR + ÍCONOS -->
                 <form class="d-flex align-items-center">
                     <input id="buscar-input" class="form-control me-2" type="text" placeholder="Buscar producto..." />
                     <button id="btn-buscar" class="btn btn-huerto me-3" type="button">Buscar</button>
 
-                    <a href="Carrito_Compra.html" class="icon-link me-3">
-                        <i class="bi bi-cart3"></i>
-                        <span id="carrito-count" class="badge bg-success">0</span>
+                    <!-- Carrito -->
+                    <a href="Carrito_Compra.html" class="icon-link me-3 position-relative" title="Carrito">
+                        <i class="bi bi-cart3 fs-4"></i>
+                        <span id="carrito-count" class="badge bg-success position-absolute">0</span>
                     </a>
-                </form>
-                <a href="Favoritos.html" class="icon-link">
-                    <i class="bi bi-heart"></i>
-                    <span id="favoritos-count" class="badge bg-danger">0</span>
-                </a>
+
+                    <!-- Mi Cuenta -->
+                    <a href="Mi_Cuenta.html" class="icon-link position-relative" title="Mi Cuenta">
+                        <i class="bi bi-person-circle fs-4"></i>
+                    </a>
                 </form>
             </div>
         </div>
