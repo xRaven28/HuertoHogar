@@ -41,9 +41,22 @@
       </div>
     </section>
 
+    <!-- MENÚ ADMIN -->
+    <section id="menu-admin" class="d-none text-center">
+      <h2 class="mb-4">Bienvenido, Administrador</h2>
+      <div class="d-flex justify-content-center gap-3 mb-4">
+        <button class="btn btn-success btn-lg" onclick="mostrarPanel('productos')">Gestionar Productos</button>
+        <button class="btn btn-primary btn-lg" onclick="mostrarPanel('cuentas')">Gestionar Cuentas</button>
+      </div>
+      <button class="btn btn-secondary" onclick="cerrarSesion()">Cerrar Sesión</button>
+    </section>
+
     <!-- PANEL ADMIN PRODUCTOS -->
     <section id="panel-huerto" class="d-none">
-      <h2 class="text-center mb-4">Panel Administrador del Huerto</h2>
+      <h2 class="text-center mb-4">Panel Administrador - Productos</h2>
+
+      <!-- Botón volver -->
+      <button class="btn btn-secondary mb-3" onclick="volverMenu()">⬅ Volver al Menú</button>
 
       <!-- CRUD Productos -->
       <h4>Gestión de Productos</h4>
@@ -80,13 +93,10 @@
 
     <!-- PANEL ADMIN CUENTAS -->
     <section id="panel-cuentas" class="d-none">
-      <h2 class="text-center mb-4">Panel Administrador de Cuentas</h2>
+      <h2 class="text-center mb-4">Panel Administrador - Cuentas</h2>
 
-      <!-- Reclamos y sugerencias -->
-      <h4>Reclamos, Sugerencias y Felicitaciones</h4>
-      <div id="admin-reclamos" class="border p-3 bg-light">
-        <p>No hay reclamos aún.</p>
-      </div>
+      <!-- Botón volver -->
+      <button class="btn btn-secondary mb-3" onclick="volverMenu()">⬅ Volver al Menú</button>
 
       <!-- Gestión de cuentas -->
       <div class="mb-3 d-flex gap-2">
@@ -94,7 +104,6 @@
         <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalCrearUsuario">
           ➕ Crear Usuario
         </button>
-
         <!-- Botón historial -->
         <button class="btn btn-info" onclick="mostrarHistorial()"> Ver Historial</button>
       </div>
@@ -133,9 +142,6 @@
         </div>
       </div>
 
-      <button class="btn btn-info" onclick="mostrarHistorial()"> Ver Historial</button>
-      </div>
-
       <!-- Tabla de usuarios -->
       <table class="table table-bordered">
         <thead class="table-info">
@@ -167,11 +173,12 @@
           </div>
         </div>
       </div>
+
     </section>
 
   </main>
 
-  <!-- MODAL EDITAR PRODUCTO -->
+  <!-- MODALES PRODUCTOS (Editar / Agregar) -->
   <div class="modal fade" id="modalEditar" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -211,7 +218,6 @@
     </div>
   </div>
 
-  <!-- MODAL AGREGAR PRODUCTO -->
   <div class="modal fade" id="modalAgregar" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -258,19 +264,43 @@
   <script src="js/Productos.js"></script>
   <script src="js/Main.js"></script>
   <script>
-    // LOGIN
+    // LOGIN UNIFICADO
     function login() {
       const user = document.getElementById("username").value;
       const pass = document.getElementById("password").value;
-      if (user === "huerto" && pass === "1234") {
+      if (user === "admin" && pass === "1234") {
         document.getElementById("login-section").classList.add("d-none");
-        document.getElementById("panel-huerto").classList.remove("d-none");
-      } else if (user === "cuentas" && pass === "1234") {
-        document.getElementById("login-section").classList.add("d-none");
-        document.getElementById("panel-cuentas").classList.remove("d-none");
+        document.getElementById("menu-admin").classList.remove("d-none");
       } else {
         alert("Credenciales incorrectas");
       }
+    }
+
+    // Mostrar panel según elección
+    function mostrarPanel(panel) {
+      document.getElementById("menu-admin").classList.add("d-none");
+      if (panel === 'productos') {
+        document.getElementById("panel-huerto").classList.remove("d-none");
+      } else if (panel === 'cuentas') {
+        document.getElementById("panel-cuentas").classList.remove("d-none");
+      }
+    }
+
+    // Volver al menú principal
+    function volverMenu() {
+      document.getElementById("panel-huerto").classList.add("d-none");
+      document.getElementById("panel-cuentas").classList.add("d-none");
+      document.getElementById("menu-admin").classList.remove("d-none");
+    }
+
+    // Cerrar sesión
+    function cerrarSesion() {
+      document.getElementById("menu-admin").classList.add("d-none");
+      document.getElementById("panel-huerto").classList.add("d-none");
+      document.getElementById("panel-cuentas").classList.add("d-none");
+      document.getElementById("login-section").classList.remove("d-none");
+      document.getElementById("username").value = '';
+      document.getElementById("password").value = '';
     }
 
     // CONSEJO DEL DÍA: guardar editable
@@ -278,7 +308,7 @@
       const texto = document.getElementById("consejo-texto").value.trim();
       if (texto) {
         document.getElementById("consejo-titulo").textContent = texto;
-        mostrarToast("Consejo actualizado con éxito","#198754");
+        mostrarToast("Consejo actualizado con éxito", "#198754");
       } else {
         mostrarToast("Ingrese un consejo válido", "#dc3545");
       }

@@ -1,5 +1,9 @@
+// INICIALIZACIÓN DE DATOS
 let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 let catalogo_local = JSON.parse(localStorage.getItem("catalogo")) || CATALOGO;
+let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+let USUARIOS = JSON.parse(localStorage.getItem("usuariosAdmin")) || [];
+let historial = JSON.parse(localStorage.getItem("historialUsuarios")) || [];
 
 // Normalizar datos del carrito
 carrito = carrito.map(p => ({
@@ -10,30 +14,15 @@ carrito = carrito.map(p => ({
   cantidad: Number(p.cantidad || 1)
 }));
 
-// Usuarios y admin
-const USUARIOS = JSON.parse(localStorage.getItem("usuariosAdmin")) || [
-  { id: 1, nombre: "Juan Bernal", estado: "Activo", bloqueado: false, rol: "admin", password: "1234", historial: [] },
-  { id: 2, nombre: "Yaii Selti", estado: "Activo", bloqueado: false, rol: "cliente", password: "1234", historial: [] },
-  { id: 3, nombre: "Alejandro Sepulveda", estado: "Inactivo", bloqueado: false, rol: "cliente", password: "1234", historial: [] }
-];
-localStorage.setItem("usuariosAdmin", JSON.stringify(USUARIOS));
-
-// Historial global
-let historial;
-try {
-  historial = JSON.parse(localStorage.getItem("historialUsuarios")) || [];
-} catch (e) {
-  historial = [];
-}
-
-
 // FUNCIONES HELPERS
 function escapeHtml(str = "") {
   return String(str).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 }
+
 function escapeAttr(str = "") {
   return String(str).replaceAll('"', "&quot;");
 }
+
 function mostrarToast(msg, color = "#51af13ff") {
   let toast = document.getElementById("toast");
   if (!toast) {
@@ -57,395 +46,7 @@ function mostrarToast(msg, color = "#51af13ff") {
   setTimeout(() => (toast.style.display = "none"), 3000);
 }
 
-
-
-// CARRITO
-function actualizarContadores() {
-  const c = document.getElementById("carrito-count");
-  if (c) c.textContent = carrito.reduce((acc, p) => acc + (Number(p.cantidad) || 1), 0);
-}
-
-function guardarCarrito() {
-  localStorage.setItem("carrito", JSON.stringify(carrito));
-  actualizarContadores();
-  renderCarrito();
-}
-
-function renderCarrito() {
-  const tabla = document.getElementById("carrito-tabla");
-  if (!tabla) return;
-  tabla.innerHTML = "";
-  let total = 0;
-  carrito.forEach((p, i) => {
-    const cantidad = Number(p.cantidad || 1);
-    const precio = Number(p.precio || 0);
-    const subtotal = cantidad * precio;
-    total += subtotal;
-    const fila = document.createElement("tr");
-    fila.innerHTML = `
-      <td>${escapeHtml(p.name)}</td>
-      <td style="width:120px;"><img src="${escapeAttr(p.img)}" style="max-width:100px; max-height:60px; object-fit:contain;"></td>
-      <td>
-        <button class="btn btn-sm btn-outline-secondary menos" data-index="${i}">-</button>
-        <span class="mx-2">${cantidad}</span>
-        <button class="btn btn-sm btn-outline-secondary mas" data-index="${i}">+</button>
-      </td>
-      <td>$${precio.toLocaleString("es-CL")}</td>
-      <td>$${subtotal.toLocaleString("es-CL")}</td>
-      <td><button class="btn btn-danger btn-sm eliminar" data-index="${i}">X</button></td>
-    `;
-    tabla.appendChild(fila);
-  });
-  const totalEl = document.getElementById("carrito-total");
-  if (totalEl) totalEl.textContent = "$" + total.toLocaleString("es-CL");
-
-  tabla.querySelectorAll(".menos").forEach(b => b.addEventListener("click", () => {
-    const i = Number(b.dataset.index);
-    if (!Number.isInteger(i)) return;
-    if (carrito[i].cantidad > 1) carrito[i].cantidad--; else carrito.splice(i, 1);
-    guardarCarrito();
-  }));
-  tabla.querySelectorAll(".mas").forEach(b => b.addEventListener("click", () => {
-    const i = Number(b.dataset.index);
-    if (!Number.isInteger(i)) return;
-    carrito[i].cantidad++;
-    guardarCarrito();
-  }));
-  tabla.querySelectorAll(".eliminar").forEach(b => b.addEventListener("click", () => {
-    const i = Number(b.dataset.index);
-    if (!Number.isInteger(i)) return;
-    carrito.splice(i, 1);
-    guardarCarrito();
-  }));
-}
-
-
-// PAGO Y BOLETA
-const btnPagar = document.getElementById("btn-pagar");
-const formPago = document.getElementById("form-pago");
-const checkoutForm = document.getElementById("checkout-form");
-const entregaSelect = document.getElementById("entrega");
-const direccionBox = document.getElementById("direccion-box");
-const direccionInput = document.getElementById("direccion");
-
-btnPagar?.addEventListener("click", () => {
-  if (!carrito.length) {
-    mostrarToast("No tienes productos en el carrito ❌", "#dc3545");
-    return;
-  }
-  if (formPago) {
-    formPago.style.display = "block";
-    window.scrollTo({ top: formPago.offsetTop, behavior: "smooth" });
-  }
-});
-
-// Mostrar campo de dirección solo si entrega a domicilio
-entregaSelect?.addEventListener("change", () => {
-  if (!entregaSelect) return;
-  if (entregaSelect.value === "domicilio") direccionBox.style.display = "block";
-  else direccionBox.style.display = "none";
-});
-
-// Confirmar compra
-checkoutForm?.addEventListener("submit", (e) => {
-  e.preventDefault();
-  if (!carrito.length) return mostrarToast("No hay productos en el carrito ❌", "#dc3545");
-
-  const metodoEntrega = entregaSelect ? entregaSelect.value : "";
-  const direccion = direccionInput ? direccionInput.value.trim() : "";
-  const metodoPago = document.getElementById("pago") ? document.getElementById("pago").value : "";
-
-  if (!metodoEntrega || !metodoPago) {
-    mostrarToast("Debes seleccionar método de entrega y pago", "#dc3545");
-    return;
-  }
-  if (metodoEntrega === "domicilio" && !direccion) {
-    mostrarToast("Debes ingresar la dirección de entrega", "#dc3545");
-    return;
-  }
-
-  // Generar boleta
-  const fecha = new Date().toLocaleString();
-  let total = carrito.reduce((acc, p) => acc + p.precio * p.cantidad, 0);
-  let htmlBoleta = `
-    <h2>HuertoHogar - Boleta de Compra</h2>
-    <p><strong>Fecha:</strong> ${fecha}</p>
-    <p><strong>Método de entrega:</strong> ${metodoEntrega}${metodoEntrega === "domicilio" ? ` (${escapeHtml(direccion)})` : ''}</p>
-    <p><strong>Método de pago:</strong> ${escapeHtml(metodoPago)}</p>
-    <table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;width:100%">
-      <tr>
-        <th>Producto</th>
-        <th>Cantidad</th>
-        <th>Precio Unitario</th>
-        <th>Subtotal</th>
-      </tr>
-      ${carrito.map(p => `
-        <tr>
-          <td>${escapeHtml(p.name)}</td>
-          <td>${p.cantidad}</td>
-          <td>$${p.precio.toLocaleString("es-CL")}</td>
-          <td>$${(p.precio * p.cantidad).toLocaleString("es-CL")}</td>
-        </tr>
-      `).join('')}
-      <tr>
-        <td colspan="3"><strong>Total</strong></td>
-        <td><strong>$${total.toLocaleString("es-CL")}</strong></td>
-      </tr>
-    </table>
-    <p>¡Gracias por tu compra! Se ha enviado la boleta a tu correo.</p>
-    <button id="descargar-boleta" style="margin-top:10px;">Descargar Boleta</button>
-  `;
-
-  // Crear modal temporal
-  const modalDiv = document.createElement("div");
-  modalDiv.innerHTML = `
-    <div class="modal fade" id="modalBoleta" tabindex="-1">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content p-3">${htmlBoleta}</div>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(modalDiv);
-  const modal = new bootstrap.Modal(document.getElementById("modalBoleta"));
-  modal.show();
-
-  // Descargar boleta
-  document.getElementById("descargar-boleta")?.addEventListener("click", () => {
-    const printWindow = window.open("", "", "width=800,height=600");
-    printWindow.document.write(htmlBoleta);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
-  });
-
-  // Vaciar carrito
-  carrito = [];
-  guardarCarrito();
-  if (formPago) formPago.style.display = "none";
-});
-
-
-// PRODUCTOS / BUSCADOR / OFERTAS
-function abrirDetalleProducto(producto) {
-  const modal = new bootstrap.Modal(document.getElementById("modalDetalle"));
-  document.getElementById("detalle-nombre").textContent = producto.name;
-  document.getElementById("detalle-img").src = producto.img;
-  document.getElementById("detalle-desc").textContent = producto.desc || producto.descripcion || "Sin descripción.";
-  document.getElementById("detalle-precio").textContent = "$" + Number(producto.precio).toLocaleString("es-CL");
-  document.getElementById("detalle-precio-original").textContent = producto.oferta ? "$" + Number(producto.precio * 1.2).toLocaleString("es-CL") : "";
-  document.getElementById("detalle-cantidad").value = 1;
-
-  const detalleMas = document.getElementById("detalle-mas");
-  const detalleMenos = document.getElementById("detalle-menos");
-  const detalleAddcart = document.getElementById("detalle-addcart");
-
-  if (detalleMas) detalleMas.onclick = () => document.getElementById("detalle-cantidad").value++;
-  if (detalleMenos) detalleMenos.onclick = () => {
-    let val = Number(document.getElementById("detalle-cantidad").value);
-    if (val > 1) document.getElementById("detalle-cantidad").value = val - 1;
-  };
-
-  if (detalleAddcart) detalleAddcart.onclick = () => {
-    const cantidad = Number(document.getElementById("detalle-cantidad").value);
-    const existing = carrito.find(p => String(p.id) === String(producto.id));
-    if (existing) existing.cantidad += cantidad;
-    else carrito.push({ id: producto.id, name: producto.name, precio: producto.precio, img: producto.img, cantidad });
-    guardarCarrito();
-    mostrarToast(`${producto.name} añadido al carrito 🛒`);
-    modal.hide();
-  };
-
-  modal.show();
-}
-
-// FILTRO
-const PRODUCTOS_POR_PAGINA = 9;
-let paginaActual = 1;
-let productosFiltrados = [];
-
-// FILTRAR Y ORDENAR PRODUCTOS
-function filtrarYOrdenarProductos(termino = "") {
-  let productos = catalogo_local.filter(p => p.habilitado);
-
-  // Filtro por categoría
-  const categoria = document.getElementById("categoria")?.value || "todos";
-  if (categoria !== "todos") {
-    productos = productos.filter(p => p.categoria === categoria);
-  }
-
-  // Filtro por búsqueda
-  if (termino) {
-    productos = productos.filter(p =>
-      p.name.toLowerCase().includes(termino) ||
-      (p.categoria?.toLowerCase() || "").includes(termino)
-    );
-  }
-
-  // Ordenamiento
-  const orden = document.getElementById("orden")?.value || "relevancia";
-  if (orden === "precio-asc") productos.sort((a, b) => a.precio - b.precio);
-  else if (orden === "precio-desc") productos.sort((a, b) => b.precio - a.precio);
-  else if (orden === "nombre-asc") productos.sort((a, b) => a.name.localeCompare(b.name));
-  else if (orden === "nombre-desc") productos.sort((a, b) => b.name.localeCompare(a.name));
-
-  // Guardar productos filtrados y reiniciar paginación
-  productosFiltrados = productos;
-  paginaActual = 1;
-
-  // Renderizar la primera página
-  renderProductosConPaginacion(productosFiltrados);
-}
-
-// Eventos de filtrado
-document.getElementById("categoria")?.addEventListener("change", () => {
-  filtrarYOrdenarProductos(document.getElementById("buscar-input")?.value.trim().toLowerCase());
-});
-document.getElementById("orden")?.addEventListener("change", () => {
-  filtrarYOrdenarProductos(document.getElementById("buscar-input")?.value.trim().toLowerCase());
-});
-document.getElementById("buscar-input")?.addEventListener("input", () => {
-  filtrarYOrdenarProductos(document.getElementById("buscar-input").value.trim().toLowerCase());
-});
-
-// OFERTAS
-function renderOfertas() {
-  const contenedor = document.getElementById("ofertas-semana");
-  if (!contenedor) return;
-
-  const idsOfertas = ["1", "2", "3", "4", "44", "76"];
-  const ofertas = catalogo_local.filter(p => idsOfertas.includes(String(p.id)) && p.habilitado);
-
-  contenedor.innerHTML = ofertas.map(p => `
-    <div class="col-md-4 col-sm-6">
-      <div class="card h-100 text-center shadow-sm p-3">
-        <img src="${escapeAttr(p.img)}" class="producto-img mx-auto d-block" style="max-width:150px; max-height:150px; object-fit:contain;">
-        <div class="card-body">
-          <h5 class="card-title">${escapeHtml(p.name)}</h5>
-          <p class="card-text">
-            <span class="text-decoration-line-through text-danger">
-              $${(p.precio * 1.2).toLocaleString("es-CL")}
-            </span>
-            <span class="fw-bold">$${p.precio.toLocaleString("es-CL")}</span>
-          </p>
-          <div class="d-flex gap-2 justify-content-center">
-            <button class="btn btn-success btn-sm add-cart" 
-                    data-id="${escapeAttr(p.id)}" 
-                    data-name="${escapeAttr(p.name)}" 
-                    data-precio="${p.precio}" 
-                    data-img="${escapeAttr(p.img)}">
-               Añadir al carrito
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  `).join("");
-
-  // Eventos de carrito
-  contenedor.querySelectorAll(".add-cart").forEach(boton => {
-    boton.addEventListener("click", () => {
-      const id = boton.dataset.id;
-      const name = boton.dataset.name;
-      const precio = Number(boton.dataset.precio);
-      const img = boton.dataset.img;
-
-      const existing = carrito.find(p => String(p.id) === id);
-      if (existing) existing.cantidad++;
-      else carrito.push({ id, name, precio, img, cantidad: 1 });
-
-      guardarCarrito();
-      mostrarToast(`${name} añadido al carrito 🛒`);
-    });
-  });
-}
-
-
-// PAGINACIÓN Y RENDERIZADO DE PRODUCTOS
-function renderProductosConPaginacion(listaProductos) {
-  const contenedor = document.getElementById("productos-container");
-  if (!contenedor) return;
-  contenedor.innerHTML = "";
-
-  const inicio = (paginaActual - 1) * PRODUCTOS_POR_PAGINA;
-  const fin = inicio + PRODUCTOS_POR_PAGINA;
-  const productosPagina = listaProductos.slice(inicio, fin);
-
-  productosPagina.forEach(producto => {
-    const card = document.createElement("div");
-    card.className = "col-md-4 col-sm-6";
-    card.innerHTML = `
-      <div class="card h-100 shadow-sm p-3 text-center">
-        <img src="${producto.img}" class="producto-img mx-auto d-block" 
-             alt="${escapeHtml(producto.name)}" 
-             style="max-width:150px; max-height:150px; object-fit:contain;">
-        <div class="card-body">
-          <h5 class="card-title">${escapeHtml(producto.name)}</h5>
-          <p class="card-text">$${producto.precio.toLocaleString("es-CL")}</p>
-          <button class="btn btn-primary btn-sm btn-ver-detalle" data-id="${escapeAttr(producto.id)}">Ver Detalle</button>
-        </div>
-      </div>
-    `;
-    contenedor.appendChild(card);
-  });
-
-  // Activar eventos de Ver Detalle
-  document.querySelectorAll(".btn-ver-detalle").forEach(boton => {
-    boton.addEventListener("click", () => {
-      const id = boton.dataset.id;
-      const producto = catalogo_local.find(p => String(p.id) === id);
-      if (producto) abrirDetalleProducto(producto);
-    });
-  });
-  renderPaginacion(listaProductos.length);
-}
-
-// RENDER PAGINACIÓN
-function renderPaginacion(totalProductos) {
-  const paginacion = document.getElementById("paginacion");
-  if (!paginacion) return;
-  paginacion.innerHTML = "";
-
-  const totalPaginas = Math.ceil(totalProductos / PRODUCTOS_POR_PAGINA);
-
-  for (let i = 1; i <= totalPaginas; i++) {
-    const btn = document.createElement("button");
-    btn.className = `btn btn-sm ${i === paginaActual ? "btn-primary" : "btn-outline-primary"} mx-1`;
-    btn.textContent = i;
-
-    btn.addEventListener("click", () => {
-      paginaActual = i;
-      renderProductosConPaginacion(productosFiltrados);
-    });
-
-    paginacion.appendChild(btn);
-  }
-}
-
-
-// BUSCADOR
-const inputBuscar = document.getElementById("buscar-input");
-const btnBuscar = document.getElementById("btn-buscar");
-
-btnBuscar?.addEventListener("click", () => {
-  const termino = inputBuscar.value.trim().toLowerCase();
-  if (!termino) return;
-  window.location.href = `Productos.html?buscar=${encodeURIComponent(termino)}`;
-});
-
-if (window.location.pathname.toLowerCase().includes("productos.html")) {
-  const params = new URLSearchParams(window.location.search);
-  const terminoBusqueda = params.get("buscar")?.toLowerCase() || "";
-  renderProductosCliente(terminoBusqueda);
-}
-
-
-// LOGIN USUARIOS
-let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [
-  { correo: "usuario1@mail.com", password: "1234", nombre: "Usuario1" }
-];
-localStorage.setItem("usuarios", JSON.stringify(usuarios));
-
+// LOGIN Y REGISTRO
 const formLogin = document.getElementById("form-login");
 const inputCorreo = document.getElementById("correo");
 const inputPassword = document.getElementById("password");
@@ -491,7 +92,6 @@ formLogin?.addEventListener("submit", function (e) {
     mostrarBienvenida(usuario);
   } else alert("Correo o contraseña incorrectos");
 });
-
 
 // ADMIN CUENTAS
 function guardarUsuarios() {
@@ -557,13 +157,11 @@ function renderCuentas() {
   });
 }
 
-// Abrir modal crear usuario
 function abrirModalCrearUsuario() {
   const modal = new bootstrap.Modal(document.getElementById("modalCrearUsuario"));
   modal.show();
 }
 
-// Guardar usuario desde el formulario
 document.getElementById("formCrearUsuario")?.addEventListener("submit", function (e) {
   e.preventDefault();
 
@@ -638,6 +236,257 @@ function mostrarHistorial() {
   modal.show();
 }
 
-function renderProductosCliente(terminoBusqueda = "") {
-  filtrarYOrdenarProductos(terminoBusqueda);
+// CARRITO
+function actualizarContadores() {
+  const c = document.getElementById("carrito-count");
+  if (c) c.textContent = carrito.reduce((acc, p) => acc + (Number(p.cantidad) || 1), 0);
 }
+
+function guardarCarrito() {
+  localStorage.setItem("carrito", JSON.stringify(carrito));
+  actualizarContadores();
+  renderCarrito();
+}
+
+function renderCarrito() {
+  const tabla = document.getElementById("carrito-tabla");
+  if (!tabla) return;
+  tabla.innerHTML = "";
+  let total = 0;
+  carrito.forEach((p, i) => {
+    const cantidad = Number(p.cantidad || 1);
+    const precio = Number(p.precio || 0);
+    const subtotal = cantidad * precio;
+    total += subtotal;
+    const fila = document.createElement("tr");
+    fila.innerHTML = `
+      <td>${escapeHtml(p.name)}</td>
+      <td style="width:120px;"><img src="${escapeAttr(p.img)}" style="max-width:100px; max-height:60px; object-fit:contain;"></td>
+      <td>
+        <button class="btn btn-sm btn-outline-secondary menos" data-index="${i}">-</button>
+        <span class="mx-2">${cantidad}</span>
+        <button class="btn btn-sm btn-outline-secondary mas" data-index="${i}">+</button>
+      </td>
+      <td>$${precio.toLocaleString("es-CL")}</td>
+      <td>$${subtotal.toLocaleString("es-CL")}</td>
+      <td><button class="btn btn-danger btn-sm eliminar" data-index="${i}">X</button></td>
+    `;
+    tabla.appendChild(fila);
+  });
+  const totalEl = document.getElementById("carrito-total");
+  if (totalEl) totalEl.textContent = "$" + total.toLocaleString("es-CL");
+
+  tabla.querySelectorAll(".menos").forEach(b => b.addEventListener("click", () => {
+    const i = Number(b.dataset.index);
+    if (!Number.isInteger(i)) return;
+    if (carrito[i].cantidad > 1) carrito[i].cantidad--; else carrito.splice(i, 1);
+    guardarCarrito();
+  }));
+  tabla.querySelectorAll(".mas").forEach(b => b.addEventListener("click", () => {
+    const i = Number(b.dataset.index);
+    if (!Number.isInteger(i)) return;
+    carrito[i].cantidad++;
+    guardarCarrito();
+  }));
+  tabla.querySelectorAll(".eliminar").forEach(b => b.addEventListener("click", () => {
+    const i = Number(b.dataset.index);
+    if (!Number.isInteger(i)) return;
+    carrito.splice(i, 1);
+    guardarCarrito();
+  }));
+}
+
+// PRODUCTOS, OFERTAS Y FILTROS
+const PRODUCTOS_POR_PAGINA = 9;
+let paginaActual = 1;
+let productosFiltrados = [];
+
+function filtrarYOrdenarProductos(termino = "") {
+  let productos = catalogo_local.filter(p => p.habilitado);
+  const categoria = document.getElementById("categoria")?.value || "todos";
+  if (categoria !== "todos") productos = productos.filter(p => p.categoria === categoria);
+
+  if (termino) {
+    productos = productos.filter(p =>
+      p.name.toLowerCase().includes(termino) ||
+      (p.categoria?.toLowerCase() || "").includes(termino)
+    );
+  }
+
+  const orden = document.getElementById("orden")?.value || "relevancia";
+  if (orden === "precio-asc") productos.sort((a, b) => a.precio - b.precio);
+  else if (orden === "precio-desc") productos.sort((a, b) => b.precio - a.precio);
+  else if (orden === "nombre-asc") productos.sort((a, b) => a.name.localeCompare(b.name));
+  else if (orden === "nombre-desc") productos.sort((a, b) => b.name.localeCompare(a.name));
+
+  productosFiltrados = productos;
+  paginaActual = 1;
+  renderProductosConPaginacion(productosFiltrados);
+}
+
+document.getElementById("categoria")?.addEventListener("change", () => {
+  filtrarYOrdenarProductos(document.getElementById("buscar-input")?.value.trim().toLowerCase());
+});
+document.getElementById("orden")?.addEventListener("change", () => {
+  filtrarYOrdenarProductos(document.getElementById("buscar-input")?.value.trim().toLowerCase());
+});
+document.getElementById("buscar-input")?.addEventListener("input", () => {
+  filtrarYOrdenarProductos(document.getElementById("buscar-input").value.trim().toLowerCase());
+});
+
+function renderProductosConPaginacion(listaProductos) {
+  const contenedor = document.getElementById("productos-container");
+  if (!contenedor) return;
+  contenedor.innerHTML = "";
+
+  const inicio = (paginaActual - 1) * PRODUCTOS_POR_PAGINA;
+  const fin = inicio + PRODUCTOS_POR_PAGINA;
+  const productosPagina = listaProductos.slice(inicio, fin);
+
+  productosPagina.forEach(producto => {
+    const card = document.createElement("div");
+    card.className = "col-md-4 col-sm-6";
+    card.innerHTML = `
+      <div class="card h-100 shadow-sm p-3 text-center">
+        <img src="${producto.img}" class="producto-img mx-auto d-block" alt="${escapeHtml(producto.name)}" style="max-width:150px; max-height:150px; object-fit:contain;">
+        <div class="card-body">
+          <h5 class="card-title">${escapeHtml(producto.name)}</h5>
+          <p class="card-text">$${producto.precio.toLocaleString("es-CL")}</p>
+          <button class="btn btn-primary btn-sm btn-ver-detalle" data-id="${escapeAttr(producto.id)}">Ver Detalle</button>
+        </div>
+      </div>
+    `;
+    contenedor.appendChild(card);
+  });
+
+  document.querySelectorAll(".btn-ver-detalle").forEach(boton => {
+    boton.addEventListener("click", () => {
+      const id = boton.dataset.id;
+      const producto = catalogo_local.find(p => String(p.id) === id);
+      if (producto) abrirDetalleProducto(producto);
+    });
+  });
+
+  renderPaginacion(listaProductos.length);
+}
+
+function renderPaginacion(totalProductos) {
+  const paginacion = document.getElementById("paginacion");
+  if (!paginacion) return;
+  paginacion.innerHTML = "";
+
+  const totalPaginas = Math.ceil(totalProductos / PRODUCTOS_POR_PAGINA);
+
+  for (let i = 1; i <= totalPaginas; i++) {
+    const btn = document.createElement("button");
+    btn.className = `btn btn-sm ${i === paginaActual ? "btn-primary" : "btn-outline-primary"} mx-1`;
+    btn.textContent = i;
+    btn.addEventListener("click", () => {
+      paginaActual = i;
+      renderProductosConPaginacion(productosFiltrados);
+    });
+    paginacion.appendChild(btn);
+  }
+}
+
+function renderOfertas() {
+  const contenedor = document.getElementById("ofertas-semana");
+  if (!contenedor) return;
+  const idsOfertas = ["1", "2", "3", "4", "44", "76"];
+  const ofertas = catalogo_local.filter(p => idsOfertas.includes(String(p.id)) && p.habilitado);
+
+  contenedor.innerHTML = ofertas.map(p => `
+    <div class="col-md-4 col-sm-6">
+      <div class="card h-100 text-center shadow-sm p-3">
+        <img src="${escapeAttr(p.img)}" class="producto-img mx-auto d-block" style="max-width:150px; max-height:150px; object-fit:contain;">
+        <div class="card-body">
+          <h5 class="card-title">${escapeHtml(p.name)}</h5>
+          <p class="card-text">
+            <span class="text-decoration-line-through text-danger">$${(p.precio * 1.2).toLocaleString("es-CL")}</span>
+            <span class="fw-bold">$${p.precio.toLocaleString("es-CL")}</span>
+          </p>
+          <div class="d-flex gap-2 justify-content-center">
+            <button class="btn btn-success btn-sm add-cart" data-id="${escapeAttr(p.id)}" data-name="${escapeAttr(p.name)}" data-precio="${p.precio}" data-img="${escapeAttr(p.img)}">Añadir al carrito</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+  contenedor.querySelectorAll(".add-cart").forEach(boton => {
+    boton.addEventListener("click", () => {
+      const id = boton.dataset.id;
+      const nombre = boton.dataset.name;
+      const precio = Number(boton.dataset.precio);
+      const img = boton.dataset.img;
+
+      const existente = carrito.find(p => p.id === id);
+      if (existente) existente.cantidad++;
+      else carrito.push({ id, name: nombre, precio, img, cantidad: 1 });
+      guardarCarrito();
+      mostrarToast(`Producto "${nombre}" añadido al carrito`);
+    });
+  });
+}
+
+// DETALLE DE PRODUCTO
+function abrirDetalleProducto(producto) {
+  const modal = new bootstrap.Modal(document.getElementById("modalDetalleProducto"));
+  document.getElementById("detalle-nombre").textContent = producto.name;
+  document.getElementById("detalle-precio").textContent = "$" + producto.precio.toLocaleString("es-CL");
+  document.getElementById("detalle-img").src = producto.img;
+  modal.show();
+
+  document.getElementById("detalle-agregar")?.addEventListener("click", () => {
+    const existente = carrito.find(p => p.id === producto.id);
+    if (existente) existente.cantidad++;
+    else carrito.push({ id: producto.id, name: producto.name, precio: producto.precio, img: producto.img, cantidad: 1 });
+    guardarCarrito();
+    mostrarToast(`Producto "${producto.name}" añadido al carrito`);
+  });
+}
+
+// CHECKOUT / BOLETA
+document.getElementById("btn-checkout")?.addEventListener("click", () => {
+  if (!carrito.length) return mostrarToast("El carrito está vacío", "#dc3545");
+  const modal = new bootstrap.Modal(document.getElementById("modalCheckout"));
+  modal.show();
+});
+
+document.getElementById("formCheckout")?.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const nombre = document.getElementById("checkout-nombre").value.trim();
+  const direccion = document.getElementById("checkout-direccion").value.trim();
+  if (!nombre || !direccion) return mostrarToast("Todos los campos son obligatorios", "#dc3545");
+
+  const total = carrito.reduce((acc, p) => acc + p.precio * p.cantidad, 0);
+  const boleta = {
+    id: Date.now(),
+    cliente: nombre,
+    direccion,
+    productos: [...carrito],
+    total,
+    fecha: new Date().toLocaleString()
+  };
+
+  let historialCompras = JSON.parse(localStorage.getItem("historialCompras")) || [];
+  historialCompras.push(boleta);
+  localStorage.setItem("historialCompras", JSON.stringify(historialCompras));
+
+  carrito = [];
+  guardarCarrito();
+  mostrarToast("Compra realizada ✅");
+
+  bootstrap.Modal.getInstance(document.getElementById("modalCheckout")).hide();
+});
+
+// INICIALIZACIÓN DE LA APP
+function initApp() {
+  filtrarYOrdenarProductos();
+  renderOfertas();
+  actualizarContadores();
+  renderCarrito();
+  renderCuentas();
+}
+
+initApp();
