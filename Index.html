@@ -186,7 +186,16 @@
     <hr class="bg-white mx-5">
     <p class="text-center mb-0">&copy; 2025 Huerto Hogar. Todos los derechos reservados.</p>
   </footer>
-
+  <script>
+    const usuario = JSON.parse(localStorage.getItem("usuarioActual"));
+    if (usuario) {
+      const div = document.createElement("div");
+      div.classList.add("text-center", "mt-3");
+      div.innerHTML = `<h4>👋 Bienvenido, ${usuario.nombre}</h4>`;
+      document.body.prepend(div);
+    }
+  </script>
+  </script>
   <!-- Scripts -->
   <script src="js/Productos.js"></script>
   <script src="js/Main.js"></script>

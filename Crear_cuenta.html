@@ -158,6 +158,34 @@
             boton.disabled = !this.checked;
         });
     </script>
+    <script>
+        document.getElementById("formCrearCuenta").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const usuario = {
+                nombre: document.getElementById("nombre").value.trim(),
+                apellido: document.getElementById("apellido").value.trim(),
+                correo: document.getElementById("correo").value.trim(),
+                password: document.getElementById("password").value.trim(),
+            };
+
+            let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+            if (usuarios.some(u => u.correo === usuario.correo)) {
+                alert("Este correo ya está registrado");
+                return;
+            }
+
+            usuarios.push(usuario);
+            localStorage.setItem("usuarios", JSON.stringify(usuarios));
+
+            alert("Cuenta creada con éxito");
+            // Iniciar sesión automáticamente
+            localStorage.setItem("usuarioActual", JSON.stringify(usuario));
+            window.location.href = "index.html";
+        });
+    </script>
+   
+
 
     <script src="js/validaciones_cuenta.js"></script>
 </body>

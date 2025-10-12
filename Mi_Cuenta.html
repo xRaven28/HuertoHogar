@@ -164,6 +164,27 @@
         <hr class="bg-white mx-5">
         <p class="text-center mb-0">&copy; 2025 Huerto Hogar. Todos los derechos reservados.</p>
     </footer>
+    <script>
+        document.getElementById("form-login").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const correo = document.getElementById("correo").value.trim();
+            const password = document.getElementById("password").value.trim();
+
+            const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+            const usuario = usuarios.find(u => u.correo === correo && u.password === password);
+
+            if (usuario) {
+                localStorage.setItem("usuarioActual", JSON.stringify(usuario));
+                alert("Inicio de sesión exitoso");
+                window.location.href = "index.html";
+            } else {
+                alert("Correo o contraseña incorrectos");
+            }
+        });
+    </script>
+    
+
 
     <script src="js/main.js"></script>
     <!-- Bootstrap JS -->

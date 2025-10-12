@@ -76,42 +76,16 @@
             </table>
         </div>
 
+        <!-- BOTÓN PAGAR -->
         <div class="text-end mt-3">
             <h4>Total: <span id="carrito-total">$0</span></h4>
             <button class="btn btn-success mt-3" id="btn-pagar">Pagar</button>
         </div>
 
-        <div id="form-pago" class="mt-4" style="display:none;">
-            <h3>Finalizar Compra</h3>
-            <form id="checkout-form">
-                <div class="mb-3">
-                    <label for="entrega" class="form-label">Método de entrega:</label>
-                    <select id="entrega" class="form-select" required>
-                        <option value="">Seleccione...</option>
-                        <option value="domicilio">Entrega a domicilio</option>
-                        <option value="local">Retiro en local</option>
-                    </select>
-                </div>
 
-                <div id="direccion-box" class="mb-3" style="display:none;">
-                    <label for="direccion" class="form-label">Dirección:</label>
-                    <input type="text" id="direccion" class="form-control">
-                </div>
 
-                <div class="mb-3">
-                    <label for="pago" class="form-label">Método de pago:</label>
-                    <select id="pago" class="form-select" required>
-                        <option value="">Seleccione...</option>
-                        <option value="tarjeta">Tarjeta de crédito/débito</option>
-                        <option value="transferencia">Transferencia bancaria</option>
-                        <option value="efectivo">Efectivo</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="btn btn-primary">Confirmar Pedido</button>
-            </form>
-        </div>
     </main>
+
 
     <script>
         // Navbar transparente al hacer scroll
@@ -124,6 +98,7 @@
             }
         });
     </script>
+
     <footer class="footer-custom text-white pt-4 pb-2">
         <div class="row px-5">
             <!-- Sección de contacto -->
@@ -157,6 +132,8 @@
         <hr class="bg-white mx-5">
         <p class="text-center mb-0">&copy; 2025 Huerto Hogar. Todos los derechos reservados.</p>
     </footer>
+
+
 
     <script src="js/main.js"></script>
     <script src="js/productos.js"></script>
